@@ -29,12 +29,24 @@ if ($sel) {
     $rc = Invoke-FhAsSystem $c 'FeatureHeist-Msi'
     "$Action $($sel -join ',') -> $rc"
 }
-# full uninstall: payload below the program folder and the product key go; an external payload stays.
-# Packages installed by the scripts and not selected in the MSI keep their state and payload.
-if ($PurgeDefaultPayload -and $rc -in 0, 3010 -and -not (Get-ChildItem HKLM:\SOFTWARE\FeatureHeist\Packages -ErrorAction SilentlyContinue)) {
+# full uninstall: the payload below the program folder goes, an external payload stays. The product key
+# goes unless packages installed by the scripts (not selected in the MSI) remain.
+if ($PurgeDefaultPayload -and $rc -in 0, 3010) {
     $p = Join-Path $PSScriptRoot 'payload'
     if (Test-Path $p) { Remove-Item $p -Recurse -Force }
-    if (Test-Path HKLM:\SOFTWARE\FeatureHeist) { Remove-Item HKLM:\SOFTWARE\FeatureHeist -Recurse -Force }
+    $k = 'HKLM:\SOFTWARE\FeatureHeist'
+    $left = @(Get-ChildItem "$k\Packages" -ErrorAction SilentlyContinue | ForEach-Object PSChildName)
+    if (-not $left) {
+        if (Test-Path $k) { Remove-Item $k -Recurse -Force }
+    } else {
+        $r = Get-ItemProperty $k -Name PayloadPath -ErrorAction SilentlyContinue
+        if ($r -and $r.PayloadPath -like "$p*") { Remove-ItemProperty $k -Name PayloadPath }
+        $w = Get-ScheduledTask FeatureHeist-Watch -ErrorAction SilentlyContinue
+        if ($w -and "$($w.Actions.Arguments)" -like "*$PSScriptRoot*") {
+            Unregister-ScheduledTask -TaskName FeatureHeist-Watch -Confirm:$false
+            Write-FhLog "WARNING: FeatureHeist-Watch removed with the MSI; $($left -join ', ') remain. To monitor them again: Import-Module <scripts>\FeatureHeist.psm1; Register-FhWatch"
+        }
+    }
 }
 if ($rc -in 0, 3010) { exit 0 }
 exit $rc

@@ -47,7 +47,12 @@ msiexec /x FeatureHeist-X.Y.Z.msi /qn
 | `CLAIMISCSI` | `iSCSI` | MSDSM claims iSCSI disks; empty to disable |
 | `CLAIMSAS` | | `SAS`: MSDSM also claims SAS disks, including local ones |
 
-Removing MPIO or LBFO needs a reboot; uninstalling removes existing NIC teams.
+Removing MPIO or LBFO needs a reboot; uninstalling removes existing NIC teams. Packages installed
+with the scripts before are kept; a full uninstall leaves those not selected in the MSI in place.
+
+LBFO installed by another tool (Windows11LBFO) is left alone: the MSI skips LBFO (with LBFO as the
+only selection it stops) and LbfoAdmin works with it. To replace it, see
+[Migration from Windows11LBFO](#migration-from-windows11lbfo).
 
 ## Scripts
 
@@ -62,7 +67,9 @@ Removing MPIO or LBFO needs a reboot; uninstalling removes existing NIC teams.
 
 Extracted files go to `scripts\payload\<build>\<package>` or `-PayloadPath`, which is remembered.
 `Install-*.ps1 -SourcePath ...` extracts first if nothing for this build is there. Uninstalling needs
-no extracted files. `-NoReboot` returns exit code 3010 instead of rebooting. Log:
+no extracted files. `-NoReboot` returns exit code 3010 instead of rebooting. With LBFO installed by
+another tool, `Install-All.ps1` asks whether to skip LBFO (unattended it skips it), `Install-Lbfo.ps1`
+stops. Log:
 `%ProgramData%\FeatureHeist\FeatureHeist.log`.
 
 ## After Windows updates
