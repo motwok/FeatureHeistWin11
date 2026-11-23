@@ -1,0 +1,110 @@
+name: Bug report
+description: Report something that doesn't work as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in the fields below;
+        the details make it much easier to reproduce and fix. Remove host names,
+        IP addresses or other details you do not want to make public.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true
+        - label: This is **not** a security vulnerability (those go through [SECURITY.md](https://github.com/motwok/FeatureHeistWin11/security/advisories/new), not a public issue).
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect instead?
+      placeholder: The installation stops with ... / after a reboot the team is down / ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      multiple: true
+      options:
+        - MPIO
+        - LBFO
+        - LbfoAdmin
+    validations:
+      required: true
+
+  - type: dropdown
+    id: step
+    attributes:
+      label: Where did it happen?
+      options:
+        - Extract
+        - Install
+        - Uninstall
+        - After a reboot
+        - After a Windows update
+        - Other (describe above)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Feature Heist version
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version, build and edition
+      description: Output of `winver`, or CurrentBuildNumber, UBR and EditionID from `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion`.
+      placeholder: e.g. Windows 11 Pro 24H2, 26100.9457
+    validations:
+      required: true
+
+  - type: input
+    id: server
+    attributes:
+      label: Windows Server media
+      description: Image name and version from `Get-WindowsImage`.
+      placeholder: e.g. Windows Server 2025 Datacenter, 10.0.26100.32230
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: The relevant part of the log in `%ProgramData%\FeatureHeist`.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Even rough steps help.
+      placeholder: |
+        1. Install-LBFO.ps1 -SourcePath D:\
+        2. Reboot
+        3. ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Physical or virtual machine, NICs, storage, screenshots, anything else.
+    validations:
+      required: false

@@ -1,0 +1,12 @@
+# never commit Microsoft binaries or images
+*.iso
+*.wim
+*.esd
+*.cab
+*.msu
+payload/
+# build output
+dist/
+out/
+*.msi
+*.wixpdb

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Feature Heist MSI: installs the scripts, then runs Install-All / Uninstall-All for the features
+     whose state changes. Contains no Microsoft files. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="!(loc.ProductName)" Manufacturer="Emmo Emminghaus" Version="$(var.Version)"
+           UpgradeCode="{6F1D3C52-8E2B-4B7A-9C1E-5A2F0D4B7E31}" Language="!(loc.Lcid)" Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="!(loc.Downgrade)" />
+    <MediaTemplate EmbedCab="yes" />
+    <Launch Condition="Installed OR VersionNT64" Message="!(loc.NeedWin11)" />
+
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/motwok/FeatureHeistWin11" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/motwok/FeatureHeistWin11/blob/master/SUPPORT.md" />
+    <Property Id="ISO" Secure="yes" />
+    <Property Id="CLAIMISCSI" Value="iSCSI" Secure="yes" />
+    <Property Id="CLAIMSAS" Secure="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="FeatureHeist">
+        <Directory Id="SCRIPTS" Name="scripts">
+          <Directory Id="PAYLOADDIR" Name="payload" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="Scripts" Directory="SCRIPTS">
+      <Files Include="$(var.Scripts)\*.ps*" />
+      <Component>
+        <File Source="$(sys.SOURCEFILEDIR)Invoke-FhMsi.ps1" />
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="Core" Title="!(loc.ProductName)" Level="1" Display="hidden" AllowAbsent="no">
+      <ComponentGroupRef Id="Scripts" />
+    </Feature>
+    <!-- one registry component per feature: without a component Windows Installer keeps no
+         installed state for the feature, and !Feature conditions never become true -->
+    <Feature Id="MPIO" Title="!(loc.FeatMpio)" Description="!(loc.FeatMpioDesc)" Level="1" AllowAdvertise="no">
+      <Component Directory="INSTALLFOLDER">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="MPIO" Value="1" Type="integer" KeyPath="yes" />
+      </Component>
+    </Feature>
+    <Feature Id="LBFO" Title="!(loc.FeatLbfo)" Description="!(loc.FeatLbfoDesc)" Level="1" AllowAdvertise="no">
+      <Component Directory="INSTALLFOLDER">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="LBFO" Value="1" Type="integer" KeyPath="yes" />
+      </Component>
+      <Feature Id="LbfoAdmin" Title="!(loc.FeatAdmin)" Description="!(loc.FeatAdminDesc)" Level="1" AllowAdvertise="no">
+        <Component Directory="INSTALLFOLDER">
+          <RegistryValue Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="LbfoAdmin" Value="1" Type="integer" KeyPath="yes" />
+        </Component>
+      </Feature>
+    </Feature>
+
+    <!-- installed by a previous version (major upgrade): neither installed again nor rolled back -->
+    <Property Id="OLD_MPIO"><RegistrySearch Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="MPIO" Type="raw" /></Property>
+    <Property Id="OLD_LBFO"><RegistrySearch Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="LBFO" Type="raw" /></Property>
+    <Property Id="OLD_ADMIN"><RegistrySearch Root="HKLM" Key="SOFTWARE\FeatureHeist\Msi" Name="LbfoAdmin" Type="raw" /></Property>
+
+    <!-- packages to add / remove, from the feature state changes (after MigrateFeatureStates) -->
+    <SetProperty Id="FH_ADD_MPIO" Value="Mpio" After="MigrateFeatureStates" Sequence="execute" Condition="&amp;MPIO=3 AND NOT !MPIO=3 AND NOT OLD_MPIO" />
+    <SetProperty Id="FH_ADD_LBFO" Value="Lbfo" After="SetFH_ADD_MPIO" Sequence="execute" Condition="&amp;LBFO=3 AND NOT !LBFO=3 AND NOT OLD_LBFO" />
+    <SetProperty Id="FH_ADD_ADMIN" Value="LbfoAdmin" After="SetFH_ADD_LBFO" Sequence="execute" Condition="&amp;LbfoAdmin=3 AND NOT !LbfoAdmin=3 AND NOT OLD_ADMIN" />
+    <SetProperty Id="FH_RM_MPIO" Value="Mpio" After="SetFH_ADD_ADMIN" Sequence="execute" Condition="&amp;MPIO=2 AND !MPIO=3 AND NOT UPGRADINGPRODUCTCODE" />
+    <SetProperty Id="FH_RM_LBFO" Value="Lbfo" After="SetFH_RM_MPIO" Sequence="execute" Condition="&amp;LBFO=2 AND !LBFO=3 AND NOT UPGRADINGPRODUCTCODE" />
+    <SetProperty Id="FH_RM_ADMIN" Value="LbfoAdmin" After="SetFH_RM_LBFO" Sequence="execute" Condition="&amp;LbfoAdmin=2 AND !LbfoAdmin=3 AND NOT UPGRADINGPRODUCTCODE" />
+    <SetProperty Id="FH_PURGE" Value="-PurgeDefaultPayload" After="SetFH_RM_ADMIN" Sequence="execute" Condition="REMOVE~=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+
+    <!-- trailing space keeps a trailing backslash from escaping the quote -->
+    <SetProperty Id="FhUninstall" Before="FhUninstall" Sequence="execute"
+                 Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;[SCRIPTS]Invoke-FhMsi.ps1&quot; -Action Uninstall -Packages &quot;[FH_RM_MPIO],[FH_RM_LBFO],[FH_RM_ADMIN]&quot; [FH_PURGE]" />
+    <SetProperty Id="FhInstallRollback" Before="FhInstallRollback" Sequence="execute"
+                 Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;[SCRIPTS]Invoke-FhMsi.ps1&quot; -Action Uninstall -Packages &quot;[FH_ADD_MPIO],[FH_ADD_LBFO],[FH_ADD_ADMIN]&quot;" />
+    <SetProperty Id="FhInstall" Before="FhInstall" Sequence="execute"
+                 Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;[SCRIPTS]Invoke-FhMsi.ps1&quot; -Action Install -Packages &quot;[FH_ADD_MPIO],[FH_ADD_LBFO],[FH_ADD_ADMIN]&quot; -SourcePath &quot;[ISO] &quot; -PayloadPath &quot;[PAYLOADDIR] &quot; -Claim &quot;[CLAIMISCSI],[CLAIMSAS]&quot;" />
+
+    <CustomAction Id="FhUninstall" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec" Execute="deferred" Impersonate="no" Return="check" />
+    <CustomAction Id="FhInstallRollback" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec" Execute="rollback" Impersonate="no" Return="ignore" />
+    <CustomAction Id="FhInstall" BinaryRef="Wix4UtilCA_X64" DllEntry="WixQuietExec" Execute="deferred" Impersonate="no" Return="check" />
+
+    <InstallExecuteSequence>
+      <Custom Action="FhUninstall" Before="RemoveFiles" Condition="FH_RM_MPIO OR FH_RM_LBFO OR FH_RM_ADMIN OR FH_PURGE" />
+      <Custom Action="FhInstallRollback" After="InstallFiles" Condition="FH_ADD_MPIO OR FH_ADD_LBFO OR FH_ADD_ADMIN" />
+      <Custom Action="FhInstall" After="FhInstallRollback" Condition="FH_ADD_MPIO OR FH_ADD_LBFO OR FH_ADD_ADMIN" />
+      <ScheduleReboot After="InstallFinalize" Condition="FH_ADD_MPIO OR FH_RM_MPIO OR FH_RM_LBFO" />
+    </InstallExecuteSequence>
+
+    <UI Id="FhUI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="!(loc.Advanced_Font_FaceName)" Size="!(loc.Advanced_Font_Normal_Size)" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="!(loc.Advanced_Font_FaceName)" Size="!(loc.Advanced_Font_Bigger_Size)" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="!(loc.Advanced_Font_FaceName)" Size="!(loc.Advanced_Font_Title_Size)" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="FeatureTree" />
+
+      <DialogRef Id="BrowseDlg" />
+      <DialogRef Id="DiskCostDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+
+      <Dialog Id="SourceDlg" Width="370" Height="270" Title="!(loc.ProductName)">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.CustomizeDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}!(loc.SrcTitle)" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.SrcDesc)" />
+        <Control Id="IsoLabel" Type="Text" X="20" Y="54" Width="330" Height="22" NoPrefix="yes" Text="!(loc.SrcIso)" />
+        <Control Id="IsoEdit" Type="Edit" X="20" Y="78" Width="330" Height="18" Property="ISO" />
+        <Control Id="PayloadLabel" Type="Text" X="20" Y="104" Width="330" Height="22" NoPrefix="yes" Text="!(loc.SrcPayload)" />
+        <Control Id="PayloadEdit" Type="PathEdit" X="20" Y="128" Width="262" Height="18" Property="PAYLOADDIR" Indirect="no" />
+        <Control Id="PayloadBrowse" Type="PushButton" X="287" Y="127" Width="63" Height="20" Text="!(loc.SrcBrowse)">
+          <Publish Property="_BrowseProperty" Value="PAYLOADDIR" Order="1" />
+          <Publish Event="SpawnDialog" Value="BrowseDlg" Order="2" />
+        </Control>
+        <Control Id="ClaimLabel" Type="Text" X="20" Y="158" Width="330" Height="12" NoPrefix="yes" Text="!(loc.SrcClaim)" />
+        <Control Id="ClaimIscsi" Type="CheckBox" X="30" Y="174" Width="320" Height="14" Property="CLAIMISCSI" CheckBoxValue="iSCSI" Text="!(loc.SrcClaimIscsi)" />
+        <Control Id="ClaimSas" Type="CheckBox" X="30" Y="192" Width="320" Height="24" Property="CLAIMSAS" CheckBoxValue="SAS" Text="!(loc.SrcClaimSas)" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999" />
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="CustomizeDlg" Condition="NOT Installed" />
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Condition="Installed AND PATCH" />
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="1" Condition="Installed" />
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2" Condition="NOT Installed" />
+      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="SourceDlg" />
+      <Publish Dialog="SourceDlg" Control="Back" Event="NewDialog" Value="CustomizeDlg" />
+      <Publish Dialog="SourceDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="SourceDlg" Order="1" Condition="NOT Installed OR WixUI_InstallMode = &quot;Change&quot;" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2" Condition="Installed AND NOT PATCH AND WixUI_InstallMode &lt;&gt; &quot;Change&quot;" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="3" Condition="Installed AND PATCH" />
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomizeDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg" />
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg" />
+    </UI>
+    <UIRef Id="WixUI_Common" />
+  </Package>
+</Wix>

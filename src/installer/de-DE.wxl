@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="de-DE" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1031" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Eine neuere Version von Feature Heist ist bereits installiert." />
+  <String Id="NeedWin11" Value="Feature Heist ben&#246;tigt Windows 11 (64 Bit)." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O mit MSDSM (Storage-Stack)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="NIC-Teaming-Treiber (Netzwerk-Stack)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Verwaltungskonsole f&#252;r NIC-Teams." />
+  <String Id="SrcTitle" Value="Windows Server-Medium" />
+  <String Id="SrcDesc" Value="Die Dateien werden aus Ihrem Windows Server-Medium desselben Builds extrahiert." />
+  <String Id="SrcIso" Value="Windows Server-ISO, install.wim oder Laufwerk. Leer lassen, wenn die Dateien schon extrahiert sind." />
+  <String Id="SrcPayload" Value="Ordner f&#252;r die extrahierten Dateien oder Ordner mit bereits extrahierten Dateien:" />
+  <String Id="SrcBrowse" Value="&amp;Durchsuchen..." />
+  <String Id="SrcClaim" Value="MPIO: automatische &#220;bernahme durch MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (&#252;bernimmt auch lokale SAS-Datentr&#228;ger, ggf. den Systemdatentr&#228;ger)" />
+</WixLocalization>

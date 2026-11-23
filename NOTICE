@@ -1,0 +1,26 @@
+Feature Heist for Windows 11
+Copyright (c) Emmo Emminghaus mo2000 at mo2000 dot de
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. See the LICENSE file for the full text.
+
+--------------------------------------------------------------------------------
+Microsoft components
+--------------------------------------------------------------------------------
+
+Feature Heist contains no Microsoft files. On the target machine it extracts
+components from Windows Server installation media provided by the user and
+installs them on Windows 11. Those components remain Microsoft software under
+Microsoft's license terms; using Windows Server components on a Windows client
+is not covered by the Windows client license. Feature Heist is not affiliated
+with or endorsed by Microsoft. Windows and Windows Server are trademarks of the
+Microsoft group of companies.
+
+--------------------------------------------------------------------------------
+Third-party components
+--------------------------------------------------------------------------------
+
+None. The scripts use only components that ship with Windows (PowerShell 5.1,
+DISM, netcfg, sc, the Windows catalog API).

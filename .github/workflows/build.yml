@@ -1,0 +1,129 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Parse, ASCII and PSScriptAnalyzer
+        shell: powershell
+        run: |
+          $fail = $false
+          $files = Get-ChildItem -Recurse -Include *.ps1, *.psm1, *.psd1 -File
+          foreach ($f in $files) {
+            $err = $null
+            [void][Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$null, [ref]$err)
+            if ($err) { $err | ForEach-Object { "::error file=$($f.FullName),line=$($_.Extent.StartLineNumber)::$($_.Message)" }; $fail = $true }
+            if ([regex]::IsMatch([IO.File]::ReadAllText($f.FullName), '[^\x00-\x7F]')) { "::error file=$($f.FullName)::raw non-ASCII character"; $fail = $true }
+          }
+          $r = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error
+          if ($r) { $r | ForEach-Object { "::error file=$($_.ScriptPath),line=$($_.Line)::$($_.RuleName): $($_.Message)" }; $fail = $true }
+          if ($fail) { exit 1 }
+
+  test:
+    name: Tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Pester
+        shell: powershell
+        run: |
+          if (-not (Get-ChildItem tests -Recurse -Filter *.Tests.ps1 -ErrorAction SilentlyContinue)) { 'No tests yet.' >> $env:GITHUB_STEP_SUMMARY; exit 0 }
+          Import-Module Pester -MinimumVersion 5.0
+          $c = New-PesterConfiguration
+          $c.Run.Path = 'tests'
+          $c.Run.Exit = $true
+          $c.CodeCoverage.Enabled = $true
+          $c.CodeCoverage.Path = 'src/scripts'
+          $c.TestResult.Enabled = $true
+          Invoke-Pester -Configuration $c
+
+  package:
+    name: Package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build
+        shell: powershell
+        run: build/build-package.ps1 -Version 0.0.1 -Out dist
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package
+          path: dist
+
+  release:
+    name: Release
+    if: github.event_name != 'pull_request'
+    needs: [lint, test, package]
+    runs-on: windows-latest
+    # One release at a time: tag, notes and assets must belong to one commit.
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Product changed since last release?
+        id: changed
+        shell: bash
+        run: |
+          last=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -z "$last" ] || ! git diff --quiet "$last" HEAD -- src build; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "No product change since $last, no release." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Next version
+        id: drafter
+        if: steps.changed.outputs.release == 'true'
+        uses: release-drafter/release-drafter@d1a19e60e81a7e650d00a7de9277f87e439117ea # v7.11.0
+        with:
+          config-name: release-drafter.yml
+          commitish: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build release assets
+        if: steps.changed.outputs.release == 'true'
+        shell: powershell
+        env:
+          VERSION: ${{ steps.drafter.outputs.resolved_version }}
+        run: |
+          if (-not $env:VERSION) { 'no version resolved'; exit 1 }
+          build/build-package.ps1 -Version $env:VERSION -Out dist
+      - name: Publish release
+        if: steps.changed.outputs.release == 'true'
+        uses: release-drafter/release-drafter@d1a19e60e81a7e650d00a7de9277f87e439117ea # v7.11.0
+        with:
+          config-name: release-drafter.yml
+          commitish: ${{ github.sha }}
+          version: ${{ steps.drafter.outputs.resolved_version }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach assets
+        if: steps.changed.outputs.release == 'true'
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.drafter.outputs.resolved_version }}
+        run: |
+          foreach ($f in Get-ChildItem dist -File) {
+            gh release upload "v$env:VERSION" $f.FullName --clobber
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
