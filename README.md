@@ -1,6 +1,11 @@
 # Feature Heist for Windows 11
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+[![Build](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/motwok/FeatureHeistWin11)](https://github.com/motwok/FeatureHeistWin11/releases/latest)
+![Platform](https://img.shields.io/badge/platform-Windows%2011%20x64%20(26100)-blue)
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1-blue)
+[![License](https://img.shields.io/github/license/motwok/FeatureHeistWin11)](LICENSE)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Me-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/motwok)
 
 Installs Windows Server features on Windows 11 that Microsoft does not ship for the client:
 
