@@ -9,6 +9,10 @@
     <MediaTemplate EmbedCab="yes" />
     <Launch Condition="Installed OR VersionNT64" Message="!(loc.NeedWin11)" />
 
+    <Icon Id="FeatureHeist.ico" SourceFile="$(sys.SOURCEFILEDIR)art\FeatureHeist.ico" />
+    <Property Id="ARPPRODUCTICON" Value="FeatureHeist.ico" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(sys.SOURCEFILEDIR)art\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(sys.SOURCEFILEDIR)art\dialog.bmp" />
     <Property Id="ARPURLINFOABOUT" Value="https://github.com/motwok/FeatureHeistWin11" />
     <Property Id="ARPHELPLINK" Value="https://github.com/motwok/FeatureHeistWin11/blob/master/SUPPORT.md" />
     <Property Id="ISO" Secure="yes" />
