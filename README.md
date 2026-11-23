@@ -4,6 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/motwok/FeatureHeistWin11)](https://github.com/motwok/FeatureHeistWin11/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-Windows%2011%20x64%20(26100)-blue)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-blue)
+![MSI languages](https://img.shields.io/badge/MSI-38%20languages-blue)
 ![Audience](https://img.shields.io/badge/audience-Windows%20admins%20%7C%20homelab-blueviolet)
 ![Use](https://img.shields.io/badge/use-lab%20%26%20test%20only-orange)
 [![License](https://img.shields.io/github/license/motwok/FeatureHeistWin11)](LICENSE)
@@ -31,7 +32,7 @@ update, path failover (MPIO, iSCSI) and member failover (LBFO).
 
 Download `FeatureHeist-X.Y.Z.msi` from the [releases](https://github.com/motwok/FeatureHeistWin11/releases).
 All packages are selected by default; enter the path of the Server ISO (or of a folder with files
-extracted before). English and German UI.
+extracted before). The setup UI comes in the 38 Windows display languages.
 
 ```
 msiexec /i FeatureHeist-X.Y.Z.msi /qn ISO="D:\Server2025.iso"
