@@ -35,7 +35,9 @@ update, path failover (MPIO, iSCSI) and member failover (LBFO).
 
 Download `FeatureHeist-X.Y.Z.msi` from the [releases](https://github.com/motwok/FeatureHeistWin11/releases).
 All packages are selected by default; enter the path of the Server ISO (or of a folder with files
-extracted before). The setup UI comes in the 38 Windows display languages.
+extracted before). The setup UI comes in the 38 Windows display languages. English and German are
+written by hand, all other languages are machine-translated: native speakers who want to check or
+improve a translation are very welcome (`src/installer/<culture>.wxl`, see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ```
 msiexec /i FeatureHeist-X.Y.Z.msi /qn ISO="D:\Server2025.iso"
