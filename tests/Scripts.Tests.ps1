@@ -35,6 +35,9 @@ Describe 'Scripts' {
         Mock Assert-FhAdmin { }
         Mock Get-FhBaseBuild { 26100 }
         Mock Get-FhWindowsDir { $global:Fh.Win }
+        Mock Get-FhLbfoOwner { if ($global:Fh.Owner) { $global:Fh.Owner } elseif (Get-FhState 'lbfo') { 'FeatureHeist' } }
+        Mock Test-FhInteractive { $false }
+        Mock Read-Host { 's' }
         Mock -ModuleName FeatureHeist Get-FhBaseBuild { 26100 }
         Mock Invoke-FhNative { & (Get-Module FeatureHeist) { param($a) Invoke-FhNative @a } $PesterBoundParameters }
         Mock Invoke-FhNative -ParameterFilter { $FilePath -ne 'reg.exe' } { 0 }
@@ -191,14 +194,42 @@ Describe 'Scripts' {
             Should -Invoke Restore-FhTeams -Times 0
         }
         It 'detects its own and foreign installations' {
-            $global:Fh.Svc = $true
             Set-FhState 'lbfo' @{ A = 1 }
             Invoke-FhScript 'Install-Lbfo.ps1' @{ PayloadPath = $pl } | Should -Be 0
             Remove-FhState 'lbfo'
-            $global:Fh.Svc = $false
-            $global:Fh.Net = $true
+            $global:Fh.Owner = 'Foreign'
             Invoke-FhScript 'Install-Lbfo.ps1' @{ PayloadPath = $pl } | Should -Be 1
-            Get-FhTestLog | Should -Match 'something else'
+            Get-FhTestLog | Should -Match 'Migrate-FromWindows11LBFO'
+        }
+        It 'installs LbfoAdmin on a foreign LBFO' {
+            New-FhTestPayload $pl 'lbfoadmin' | Out-Null
+            $global:Fh.Owner = 'Foreign'
+            Invoke-FhScript 'Install-LbfoAdmin.ps1' @{ PayloadPath = $pl; NoReboot = $true } | Should -Be 3010
+        }
+        It 'refuses LBFO alone over a foreign LBFO' {
+            $global:Fh.Owner = 'Foreign'
+            Invoke-FhScript 'Install-All.ps1' @{ Packages = 'Lbfo'; PayloadPath = $pl; NoReboot = $true } | Should -Be 1
+            Get-FhTestLog | Should -Match 'ERROR: LBFO is installed by another tool'
+        }
+        It 'skips a foreign LBFO when unattended' {
+            foreach ($p in 'mpio', 'lbfoadmin') { New-FhTestPayload $pl $p | Out-Null }
+            $global:Fh.Owner = 'Foreign'
+            Invoke-FhScript 'Install-All.ps1' @{ PayloadPath = $pl; NoReboot = $true } | Should -Be 3010
+            Get-FhTestLog | Should -Match 'WARNING: LBFO skipped'
+            Get-FhState 'lbfo' | Should -BeNullOrEmpty
+            Get-FhState 'lbfoadmin' | Should -Not -BeNullOrEmpty
+            Should -Invoke Read-Host -Times 0
+        }
+        It 'asks whether to skip a foreign LBFO' {
+            New-FhTestPayload $pl 'mpio' | Out-Null
+            $global:Fh.Owner = 'Foreign'
+            Mock Test-FhInteractive { $true }
+            Mock Read-Host { 'a' }
+            Invoke-FhScript 'Install-All.ps1' @{ Packages = 'Mpio', 'Lbfo'; PayloadPath = $pl; NoReboot = $true } | Should -Be 1
+            Get-FhState 'mpio' | Should -BeNullOrEmpty
+            Mock Read-Host { 's' }
+            Invoke-FhScript 'Install-All.ps1' @{ Packages = 'Mpio', 'Lbfo'; PayloadPath = $pl; NoReboot = $true } | Should -Be 3010
+            Get-FhState 'mpio' | Should -Not -BeNullOrEmpty
         }
         It 'reports a partial installation' {
             New-FhTestPayload $pl 'lbfo' | Out-Null

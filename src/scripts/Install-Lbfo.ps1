@@ -25,16 +25,13 @@ Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Service = 'MsLbfoProvider'
 $CatPrefix = 'FeatureHeist-'
-$NetService = 'HKLM:\SYSTEM\CurrentControlSet\Control\Network\{4D36E974-E325-11CE-BFC1-08002BE10318}'
 
 $st = $null
 try {
     Write-FhLog '--- Install-Lbfo'
-    $component = Get-ChildItem $NetService -ErrorAction SilentlyContinue | Where-Object { (Get-ItemProperty $_.PSPath).PSObject.Properties['ComponentId'] -and (Get-ItemProperty $_.PSPath).ComponentId -eq 'ms_lbfo' }
-    if ((Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\$Service") -or $component) {
-        if (Get-FhState 'lbfo') { Write-FhLog 'LBFO already installed.'; exit 0 }
-        throw 'LBFO is installed by something else (e.g. Windows11LBFO). Remove it first.'
-    }
+    $owner = Get-FhLbfoOwner
+    if ($owner -eq 'FeatureHeist') { Write-FhLog 'LBFO already installed.'; exit 0 }
+    if ($owner) { throw (Get-FhForeignLbfoHint) }
     $payload = Resolve-FhPayload 'lbfo' $PayloadPath $SourcePath $Index 'Extract-Lbfo.ps1'
     $m = Get-Content (Join-Path $payload 'manifest.json') -Raw | ConvertFrom-Json
     $st = [ordered]@{ Source = $m.Source; Installed = (Get-Date).ToString('s'); Catalogs = @(); Files = @(); Inf = $null }
