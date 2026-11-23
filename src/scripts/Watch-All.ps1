@@ -10,7 +10,7 @@
 [CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 
 function Test-Active([string]$p) {
     switch ($p) {

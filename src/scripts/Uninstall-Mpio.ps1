@@ -13,7 +13,7 @@
 [CmdletBinding()]
 param([switch]$Force, [switch]$NoReboot)
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Package = 'Microsoft-Windows-MultipathIo-Package'
 $Task = 'FeatureHeist-MsdsmFix'
@@ -41,7 +41,7 @@ try {
     }
     Uninstall-FhCbsPackage $Package | Out-Null
     Unregister-ScheduledTask -TaskName $Task -Confirm:$false -ErrorAction SilentlyContinue
-    Remove-FhFile (Join-Path $env:ProgramData 'FeatureHeist\MsdsmFix.ps1')
+    Remove-FhFile (Join-Path (Get-FhDataDir) 'MsdsmFix.ps1')
     Remove-FhState 'mpio'
     Unregister-FhWatch
     Write-FhLog 'MPIO removed.'

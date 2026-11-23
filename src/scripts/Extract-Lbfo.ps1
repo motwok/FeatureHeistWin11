@@ -14,7 +14,7 @@
 [CmdletBinding()]
 param([string]$SourcePath, [int]$Index, [string]$PayloadPath, [string]$MountPath, [object]$Source)
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Service = 'MsLbfoProvider'
 $Files = [ordered]@{
@@ -44,10 +44,9 @@ try {
     }
 
     # the INF has no service section; the service comes from the component manifest
-    $hive = Join-Path $env:ProgramData 'FeatureHeist\SYSTEM.copy'
+    $hive = Join-Path (Get-FhDataDir) 'SYSTEM.copy'
     Copy-Item (Join-Path $mount 'Windows\System32\config\SYSTEM') $hive -Force
-    & reg.exe load HKLM\FH_SRC_SYSTEM $hive 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot load SYSTEM hive of the image.' }
+    Invoke-FhNative reg.exe @('load', 'HKLM\FH_SRC_SYSTEM', $hive) | Out-Null
     try {
         $k = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("FH_SRC_SYSTEM\ControlSet001\Services\$Service")
         if (-not $k) { throw "Service $Service not in image." }
@@ -56,7 +55,7 @@ try {
         finally { $k.Close() }
     } finally {
         [gc]::Collect(); [gc]::WaitForPendingFinalizers()
-        & reg.exe unload HKLM\FH_SRC_SYSTEM 2>&1 | Out-Null
+        Invoke-FhNative reg.exe @('unload', 'HKLM\FH_SRC_SYSTEM') @(0, 1) | Out-Null
     }
     $svc | ConvertTo-Json | Set-Content (Join-Path $dest 'service.json') -Encoding UTF8
     Write-FhManifest $dest (Get-FhSourceInfo $src)

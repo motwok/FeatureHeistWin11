@@ -17,7 +17,7 @@ param(
     [string]$SourcePath, [int]$Index, [string]$PayloadPath
 )
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 
 $src = $null; $img = $null; $rc = 0

@@ -27,7 +27,7 @@ param(
     [switch]$NoReboot
 )
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Task = 'FeatureHeist-MsdsmFix'
 
@@ -45,7 +45,7 @@ try {
     }
 
     # MSDSM fails to start on the first boot after installation (code 37); restart the device once.
-    $fix = Join-Path $env:ProgramData 'FeatureHeist\MsdsmFix.ps1'
+    $fix = Join-Path (Get-FhDataDir) 'MsdsmFix.ps1'
     @"
 Start-Sleep 20
 foreach (`$d in Get-PnpDevice -ErrorAction SilentlyContinue | Where-Object { `$_.HardwareID -contains 'ROOT\MSDSM' }) {

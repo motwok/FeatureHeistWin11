@@ -21,7 +21,7 @@
 [CmdletBinding()]
 param([string]$PayloadPath, [string]$SourcePath, [int]$Index, [switch]$RestoreTeams, [switch]$NoReboot)
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Service = 'MsLbfoProvider'
 $CatPrefix = 'FeatureHeist-'
@@ -43,7 +43,7 @@ try {
         Add-FhCatalog $c.FullName "$CatPrefix$($c.Name)"
         $st.Catalogs += "$CatPrefix$($c.Name)"; Set-FhState 'lbfo' $st
     }
-    $drv = Join-Path $env:SystemRoot 'System32\drivers'
+    $drv = Join-Path (Get-FhWindowsDir) 'System32\drivers'
     $targets = [ordered]@{ 'MsLbfoProvider.sys' = Join-Path $drv 'MsLbfoProvider.sys'; 'MsLbfoProvider.sys.mui' = Join-Path $drv 'en-US\MsLbfoProvider.sys.mui' }
     foreach ($n in $targets.Keys) {
         $f = Join-Path $payload "driver\$n"
@@ -62,7 +62,7 @@ try {
     Invoke-FhNative sc.exe @('description', $Service, $svc.Description) | Out-Null
     $st.Service = $Service; Set-FhState 'lbfo' $st
 
-    $inf = Join-Path $env:SystemRoot 'INF\mslbfoprovider.inf'
+    $inf = Join-Path (Get-FhWindowsDir) 'INF\mslbfoprovider.inf'
     if (Test-Path $inf) { throw "Already exists: $inf" }
     Copy-Item (Join-Path $payload 'driver\mslbfoprovider.inf') $inf
     $st.Inf = $inf; Set-FhState 'lbfo' $st

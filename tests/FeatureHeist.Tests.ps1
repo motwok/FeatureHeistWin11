@@ -1,4 +1,4 @@
-#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.0' }
+#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.2.0' }
 BeforeAll {
     Import-Module (Join-Path $PSScriptRoot '..\src\scripts\FeatureHeist.psm1') -Force
 }

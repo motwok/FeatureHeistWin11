@@ -45,7 +45,8 @@ jobs:
         shell: powershell
         run: |
           if (-not (Get-ChildItem tests -Recurse -Filter *.Tests.ps1 -ErrorAction SilentlyContinue)) { 'No tests yet.' >> $env:GITHUB_STEP_SUMMARY; exit 0 }
-          Import-Module Pester -MinimumVersion 5.0
+          Install-Module Pester -RequiredVersion 6.2.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Import-Module Pester -RequiredVersion 6.2.0
           $c = New-PesterConfiguration
           $c.Run.Path = 'tests'
           $c.Run.Exit = $true

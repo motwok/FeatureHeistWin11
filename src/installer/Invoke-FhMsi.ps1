@@ -10,7 +10,7 @@ param(
     [switch]$PurgeDefaultPayload
 )
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 
 $sel = @($Packages -split '[,; ]' | Where-Object { $_ })
 $rc = 0
