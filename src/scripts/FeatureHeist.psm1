@@ -137,6 +137,11 @@ function Get-FhDataDir {
 
 function Get-FhWindowsDir { $env:SystemRoot }
 
+# Prompts only in a console a user can answer: not remoting, a task or -NonInteractive.
+function Test-FhInteractive {
+    $Host.Name -eq 'ConsoleHost' -and [Environment]::UserInteractive -and -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -like '-NonI*' })
+}
+
 function Test-FhSystem { [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18' }
 
 # Runs a PowerShell command line as a one-shot SYSTEM task and returns its exit code. Used where the
@@ -202,6 +207,18 @@ function Remove-FhState {
     $k = "$script:RegRoot\Packages\$Package"
     if (Test-Path $k) { Remove-Item $k -Recurse -Force }
     if ((Test-Path "$script:RegRoot\Packages") -and -not (Get-ChildItem "$script:RegRoot\Packages")) { Remove-Item "$script:RegRoot\Packages" -Force }
+}
+
+# 'FeatureHeist', 'Foreign' (e.g. Windows11LBFO) or $null when no LBFO service or component exists.
+function Get-FhLbfoOwner {
+    $net = 'HKLM:\SYSTEM\CurrentControlSet\Control\Network\{4D36E974-E325-11CE-BFC1-08002BE10318}'
+    $component = Get-ChildItem $net -ErrorAction SilentlyContinue | Where-Object { $p = Get-ItemProperty $_.PSPath; $p.PSObject.Properties['ComponentId'] -and $p.ComponentId -eq 'ms_lbfo' }
+    if (-not ((Test-Path 'HKLM:\SYSTEM\CurrentControlSet\Services\MsLbfoProvider') -or $component)) { return $null }
+    if (Get-FhState 'lbfo') { 'FeatureHeist' } else { 'Foreign' }
+}
+
+function Get-FhForeignLbfoHint {
+    'LBFO is installed by another tool (e.g. Windows11LBFO). To replace it use tools\Migrate-FromWindows11LBFO.ps1 from https://github.com/motwok/FeatureHeistWin11.'
 }
 
 # ---------------------------------------------------------------- payload

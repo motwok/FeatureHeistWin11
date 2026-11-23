@@ -18,4 +18,9 @@
   <String Id="SrcClaim" Value="MPIO: automatic claim by MSDSM" />
   <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
   <String Id="SrcClaimSas" Value="&amp;SAS (also claims local SAS disks, possibly the system disk)" />
+  <String Id="ForeignTitle" Value="LBFO is already installed" />
+  <String Id="ForeignDesc" Value="Installed by another tool, e.g. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (NIC teaming) is already installed by another tool, e.g. Windows11LBFO. Feature Heist leaves it and its teams unchanged; LbfoAdmin works with it. To replace it, use tools\Migrate-FromWindows11LBFO.ps1 from https://github.com/motwok/FeatureHeistWin11. Skip LBFO and install the other selected packages, or cancel." />
+  <String Id="ForeignSkip" Value="&amp;Skip LBFO" />
+  <String Id="ForeignOnly" Value="LBFO is already installed by another tool (e.g. Windows11LBFO) and is the only package selected. To replace it, use tools\Migrate-FromWindows11LBFO.ps1 from https://github.com/motwok/FeatureHeistWin11." />
 </WixLocalization>

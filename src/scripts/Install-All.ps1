@@ -3,7 +3,7 @@
 .SYNOPSIS
     Installs the selected packages (MPIO, LBFO, LbfoAdmin) and reboots once.
 .PARAMETER Packages
-    Mpio, Lbfo, LbfoAdmin. Default: all. LbfoAdmin requires Lbfo.
+    Mpio, Lbfo, LbfoAdmin. Default: all. LbfoAdmin requires LBFO (also one installed by another tool).
 .PARAMETER PayloadPath
     Payload root. Default: registry, else <scripts>\payload.
 .PARAMETER SourcePath
@@ -20,6 +20,8 @@
     Exit 3010 instead of rebooting.
 .NOTES
     Exit codes: 0, 3010 (reboot required), 1. Stops at the first failing package.
+    LBFO installed by another tool (Windows11LBFO): Lbfo alone fails; with other packages it asks
+    whether to skip Lbfo or abort, unattended it skips Lbfo.
 #>
 [CmdletBinding()]
 param(
@@ -35,6 +37,16 @@ Assert-FhAdmin
 
 $sel = @('Mpio', 'Lbfo', 'LbfoAdmin' | Where-Object { $Packages -contains $_ })
 Write-FhLog "--- Install-All $($sel -join ', ')"
+if ($sel -contains 'Lbfo' -and (Get-FhLbfoOwner) -eq 'Foreign') {
+    $hint = Get-FhForeignLbfoHint
+    if ($sel.Count -eq 1) { Write-FhLog "ERROR: $hint"; exit 1 }
+    if ((Test-FhInteractive) -and (Read-Host "$hint`nSkip LBFO and install the other packages, or abort? [S/A]") -notmatch '^s') {
+        Write-FhLog 'Aborted.'
+        exit 1
+    }
+    Write-FhLog "WARNING: LBFO skipped. $hint"
+    $sel = @($sel | Where-Object { $_ -ne 'Lbfo' })
+}
 if ($SourcePath) {
     $missing = @($sel | Where-Object { -not (Find-FhPayload $_.ToLower() $PayloadPath) })
     if ($missing) {

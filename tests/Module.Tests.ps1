@@ -44,6 +44,7 @@ Describe 'Log and run' {
     It 'checks the account' {
         Test-FhSystem | Should -BeFalse
         Get-FhWindowsDir | Should -Be $env:SystemRoot
+        Test-FhInteractive | Should -BeOfType [bool]
         if ($IsAdmin) { { Assert-FhAdmin } | Should -Not -Throw } else { { Assert-FhAdmin } | Should -Throw }
         @(Get-FhUiLanguages).Count | Should -BeGreaterThan 0
     }
@@ -78,6 +79,30 @@ Describe 'State' {
     It 'ignores a package key without state' {
         New-Item "$TestReg\Packages\z" -Force | Out-Null
         Get-FhState 'z' | Should -BeNullOrEmpty
+    }
+}
+
+Describe 'LBFO owner' {
+    BeforeEach {
+        Reset-FhTest | Out-Null
+        $global:FhOwner = @{ Svc = $false; Net = $false }
+        foreach ($c in 'Test-Path', 'Get-ChildItem', 'Get-ItemProperty') {
+            Mock -ModuleName FeatureHeist $c ([scriptblock]::Create("& (Get-Command $c -CommandType Cmdlet) @PesterBoundParameters"))
+        }
+        Mock -ModuleName FeatureHeist Test-Path -ParameterFilter { "$Path" -like '*\Services\MsLbfoProvider' } { $global:FhOwner.Svc }
+        Mock -ModuleName FeatureHeist Get-ChildItem -ParameterFilter { "$Path" -like '*\Control\Network\*' } { if ($global:FhOwner.Net) { [pscustomobject]@{ PSPath = 'fh-net' } } }
+        Mock -ModuleName FeatureHeist Get-ItemProperty -ParameterFilter { "$Path" -eq 'fh-net' } { [pscustomobject]@{ ComponentId = 'ms_lbfo' } }
+    }
+
+    It 'finds no LBFO' { Get-FhLbfoOwner | Should -BeNullOrEmpty }
+    It 'tells its own from a foreign LBFO' {
+        $global:FhOwner.Net = $true
+        Get-FhLbfoOwner | Should -Be 'Foreign'
+        $global:FhOwner.Net = $false
+        $global:FhOwner.Svc = $true
+        Set-FhState 'lbfo' @{ A = 1 }
+        Get-FhLbfoOwner | Should -Be 'FeatureHeist'
+        Get-FhForeignLbfoHint | Should -Match 'Migrate-FromWindows11LBFO'
     }
 }
 

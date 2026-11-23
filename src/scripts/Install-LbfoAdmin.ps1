@@ -21,7 +21,7 @@ Assert-FhAdmin
 
 try {
     Write-FhLog '--- Install-LbfoAdmin'
-    if (-not (Get-FhState 'lbfo')) { throw 'LBFO is not installed; run Install-Lbfo.ps1 first.' }
+    if (-not (Get-FhLbfoOwner)) { throw 'LBFO is not installed; run Install-Lbfo.ps1 first.' }
     $payload = Resolve-FhPayload 'lbfoadmin' $PayloadPath $SourcePath $Index 'Extract-LbfoAdmin.ps1'
     $reboot = Install-FhCbsPackage $payload
     $m = Get-Content (Join-Path $payload 'manifest.json') -Raw | ConvertFrom-Json
