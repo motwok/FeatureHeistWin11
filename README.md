@@ -2,6 +2,7 @@
 
 [![Build](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml)
 [![Release](https://img.shields.io/github/v/release/motwok/FeatureHeistWin11)](https://github.com/motwok/FeatureHeistWin11/releases/latest)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%2011%20x64%20(26100)-blue)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-blue)
 ![MSI languages](https://img.shields.io/badge/MSI-38%20languages-blue)
@@ -109,7 +110,7 @@ with a checkpoint first.
 
 ## Credits
 
-Feature Heist was inspired by **Windows11LBFO** by hifihedgehog (`hifihedgehog/Windows11LBFO` on GitHub),
+Feature Heist was inspired by **Windows11LBFO** by hifihedgehog ([hifihedgehog/Windows11LBFO](https://github.com/hifihedgehog/Windows11LBFO)),
 which first brought the Server NIC teaming driver to Windows 11. Many thanks for that groundwork.
 
 ## Help and contributing

@@ -45,7 +45,22 @@ Describe 'Log and run' {
         Test-FhSystem | Should -BeFalse
         Get-FhWindowsDir | Should -Be $env:SystemRoot
         Test-FhInteractive | Should -BeOfType [bool]
-        if ($IsAdmin) { { Assert-FhAdmin } | Should -Not -Throw } else { { Assert-FhAdmin } | Should -Throw }
+    }
+    It 'requires administrator rights' {
+        Mock -ModuleName FeatureHeist Test-FhAdmin { $false }
+        { Assert-FhAdmin } | Should -Throw 'Run as administrator.'
+        Mock -ModuleName FeatureHeist Test-FhAdmin { $true }
+        { Assert-FhAdmin } | Should -Not -Throw
+    }
+    It 'prompts only in an interactive console' {
+        Mock -ModuleName FeatureHeist Get-FhConsole { [pscustomobject]@{ Host = 'ConsoleHost'; UserInteractive = $true; Arguments = @('powershell.exe', '-File', 'x.ps1') } }
+        Test-FhInteractive | Should -BeTrue
+        Mock -ModuleName FeatureHeist Get-FhConsole { [pscustomobject]@{ Host = 'ConsoleHost'; UserInteractive = $true; Arguments = @('powershell.exe', '-NonInteractive') } }
+        Test-FhInteractive | Should -BeFalse
+        Mock -ModuleName FeatureHeist Get-FhConsole { [pscustomobject]@{ Host = 'ServerRemoteHost'; UserInteractive = $true; Arguments = @() } }
+        Test-FhInteractive | Should -BeFalse
+        Test-FhAdmin | Should -Be $IsAdmin
+        (Get-FhConsole).Host | Should -Be $Host.Name
         @(Get-FhUiLanguages).Count | Should -BeGreaterThan 0
     }
     It 'runs a command as a SYSTEM task' {
@@ -365,6 +380,11 @@ Describe 'Catalogs and files' {
         Remove-FhCatalog 'FeatureHeist-PesterNone.cat'
         Get-FhTestLog | Should -Match 'FeatureHeist-PesterNone.cat'
     }
+    It 'warns when a catalog cannot be removed' {
+        Mock -ModuleName FeatureHeist Invoke-FhCatalogRemoval { 5 }
+        Remove-FhCatalog 'FeatureHeist-PesterNone.cat'
+        Get-FhTestLog | Should -Match 'WARNING: removing catalog FeatureHeist-PesterNone.cat failed: 5'
+    }
     It 'deletes files, locked ones at the next boot' {
         Remove-FhFile (Join-Path $TestDrive 'nothing')
         $f = Join-Path $TestDrive 'del.txt'
@@ -375,6 +395,10 @@ Describe 'Catalogs and files' {
         $s = [IO.File]::Open($f, 'Open', 'Read', 'None')
         try { Remove-FhFile $f } finally { $s.Close() }
         Get-FhTestLog | Should -Match $(if ($IsAdmin) { 'Deleted at next boot' } else { 'cannot delete' })
+        Mock -ModuleName FeatureHeist Register-FhDelayedDelete { $false }
+        $s = [IO.File]::Open($f, 'Open', 'Read', 'None')
+        try { Remove-FhFile $f } finally { $s.Close() }
+        Get-FhTestLog | Should -Match 'WARNING: cannot delete'
         Remove-Item $f
     }
 }
@@ -476,9 +500,14 @@ Describe 'Watch task' {
         Mock -ModuleName FeatureHeist New-EventLog { }
     }
 
-    It 'registers the task with three triggers' -Skip:(-not $IsAdmin) {
+    It 'registers the task with three triggers and the event source' {
+        Mock -ModuleName FeatureHeist Test-FhEventSource { $false }
         Register-FhWatch
         Should -Invoke -ModuleName FeatureHeist Register-ScheduledTask -Times 1 -ParameterFilter { $TaskName -eq 'FeatureHeist-Watch' -and @($Trigger).Count -eq 3 }
+        Should -Invoke -ModuleName FeatureHeist New-EventLog -Times 1
+    }
+    It 'checks the event source' -Skip:(-not $IsAdmin) {
+        Test-FhEventSource | Should -BeOfType [bool]
     }
     It 'removes the task only when no package is left' {
         Set-FhState 'mpio' @{ A = 1 }
