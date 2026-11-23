@@ -85,3 +85,11 @@ Describe 'Reboot handling' {
     It 'returns 0 without a pending reboot' { Complete-FhRun $false | Should -Be 0 }
     It 'returns 3010 with -NoReboot' { Complete-FhRun $true -NoReboot | Should -Be 3010 }
 }
+
+Describe 'Argument quoting' {
+    It 'quotes a path with spaces and apostrophes' {
+        $q = ConvertTo-FhArg "C:\it's a dir"
+        $q | Should -Be "'C:\it''s a dir'"
+        (Invoke-Expression $q) | Should -Be "C:\it's a dir"
+    }
+}
