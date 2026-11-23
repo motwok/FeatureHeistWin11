@@ -294,7 +294,7 @@ Describe 'Package export' -Skip:(-not $IsAdmin) {
     }
     It 'needs a readable COMPONENTS hive' {
         Set-Content (Join-Path $m 'Windows\System32\config\COMPONENTS') 'not a hive'
-        { Export-FhCbsPackage $m (Get-Item (Join-Path $pk 'P~31bf3856ad364e35~amd64~~10.0.26100.1.mum')) $dest } | Should -Throw '*Cannot load COMPONENTS*'
+        { Export-FhCbsPackage $m (Get-Item (Join-Path $pk 'P~31bf3856ad364e35~amd64~~10.0.26100.1.mum')) $dest } | Should -Throw '*reg.exe load*'
     }
     It 'needs every component' {
         $f = Join-Path $pk 'N~31bf3856ad364e35~amd64~~10.0.26100.1.mum'

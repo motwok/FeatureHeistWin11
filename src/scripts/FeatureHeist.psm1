@@ -103,6 +103,8 @@ function Write-FhLog {
 
 function Invoke-FhNative {
     param([Parameter(Mandatory)][string]$FilePath, [string[]]$ArgumentList, [int[]]$Success = @(0))
+    # native stderr must not become a terminating error
+    $ErrorActionPreference = 'Continue'
     $out = & $FilePath @ArgumentList 2>&1
     $code = $LASTEXITCODE
     $out | ForEach-Object { Add-Content -Path $script:LogFile -Value "    $_" -Encoding UTF8 }
@@ -280,9 +282,9 @@ function Open-FhSource {
         Write-FhLog "ISO mounted as $SourcePath"
     }
     $cand = if ($SourcePath -match '\.(wim|esd)$') { @($SourcePath) }
-            elseif ($SourcePath) { 'install.wim', 'install.esd' | ForEach-Object { Join-Path $SourcePath "sources\$_" } }
+            elseif ($SourcePath) { 'install.wim', 'install.esd' | ForEach-Object { [IO.Path]::Combine($SourcePath, "sources\$_") } }
             else { foreach ($d in Get-PSDrive -PSProvider FileSystem) { 'install.wim', 'install.esd' | ForEach-Object { Join-Path $d.Root "sources\$_" } } }
-    $wim = $cand | Where-Object { (Test-Path $_) -and (Get-WindowsImage -ImagePath $_ | Where-Object ImageName -like '*Server*') } | Select-Object -First 1
+    $wim = $cand | Where-Object { (Test-Path $_ -ErrorAction SilentlyContinue) -and (Get-WindowsImage -ImagePath $_ | Where-Object ImageName -like '*Server*') } | Select-Object -First 1
     if (-not $wim) {
         if ($iso) { Dismount-DiskImage -ImagePath $iso.ImagePath | Out-Null }
         throw 'No Windows Server install.wim/esd found; pass -SourcePath.'
@@ -368,8 +370,7 @@ function Export-FhCbsPackage {
     $hive = Join-Path (Get-FhDataDir) 'COMPONENTS.copy'
     $key = 'FH_SRC_COMPONENTS'
     Copy-Item (Join-Path $Mount 'Windows\System32\config\COMPONENTS') $hive -Force
-    & reg.exe load "HKLM\$key" $hive 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot load COMPONENTS hive of the image.' }
+    Invoke-FhNative reg.exe @('load', "HKLM\$key", $hive) | Out-Null
     $hk = $null
     try {
         $hk = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("$key\DerivedData\Components")
@@ -423,7 +424,7 @@ function Export-FhCbsPackage {
     } finally {
         if ($hk) { $hk.Close() }
         [gc]::Collect(); [gc]::WaitForPendingFinalizers()
-        & reg.exe unload "HKLM\$key" 2>&1 | Out-Null
+        Invoke-FhNative reg.exe @('unload', "HKLM\$key") @(0, 1) | Out-Null
         Remove-Item "$hive*" -Force -ErrorAction SilentlyContinue
     }
 }
