@@ -12,7 +12,7 @@
 [CmdletBinding()]
 param([switch]$Force, [switch]$NoReboot)
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $NetService = 'HKLM:\SYSTEM\CurrentControlSet\Control\Network\{4D36E974-E325-11CE-BFC1-08002BE10318}'
 

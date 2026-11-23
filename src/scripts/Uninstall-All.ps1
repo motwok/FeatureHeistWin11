@@ -17,7 +17,7 @@ param(
     [switch]$Force, [switch]$NoReboot
 )
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 
 $sel = @('LbfoAdmin', 'Lbfo', 'Mpio' | Where-Object { $Packages -contains $_ })

@@ -128,6 +128,13 @@ function Complete-FhRun {
     $script:RebootCode
 }
 
+function Get-FhDataDir {
+    if (-not (Test-Path $script:DataDir)) { New-Item -ItemType Directory -Force $script:DataDir | Out-Null }
+    $script:DataDir
+}
+
+function Get-FhWindowsDir { $env:SystemRoot }
+
 function Test-FhSystem { [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18' }
 
 # Runs a PowerShell command line as a one-shot SYSTEM task and returns its exit code. Used where the
@@ -358,7 +365,7 @@ function Get-FhPackageMums {
 # Components are resolved through a copy of the image's COMPONENTS hive.
 function Export-FhCbsPackage {
     param([Parameter(Mandatory)][string]$Mount, [Parameter(Mandatory)][IO.FileInfo[]]$Mum, [Parameter(Mandatory)][string]$Destination)
-    $hive = Join-Path $script:DataDir 'COMPONENTS.copy'
+    $hive = Join-Path (Get-FhDataDir) 'COMPONENTS.copy'
     $key = 'FH_SRC_COMPONENTS'
     Copy-Item (Join-Path $Mount 'Windows\System32\config\COMPONENTS') $hive -Force
     & reg.exe load "HKLM\$key" $hive 2>&1 | Out-Null
@@ -484,10 +491,10 @@ function Remove-FhCatalog {
 function Remove-FhFile {
     param([Parameter(Mandatory)][string]$Path)
     if (-not (Test-Path $Path)) { return }
-    try { Remove-Item $Path -Force; Write-FhLog "Deleted: $Path" }
+    try { Remove-Item $Path -Force -ErrorAction Stop; Write-FhLog "Deleted: $Path" }
     catch {
         # MOVEFILE_DELAY_UNTIL_REBOOT
-        if ([FeatureHeist.Native]::MoveFileEx($Path, $null, 4)) { Write-FhLog "Deleted at next boot: $Path" }
+        if ([FeatureHeist.Native]::MoveFileEx($Path, [NullString]::Value, 4)) { Write-FhLog "Deleted at next boot: $Path" }
         else { Write-FhLog "WARNING: cannot delete $Path" }
     }
 }
@@ -527,7 +534,7 @@ function Save-FhTeams {
 function Restore-FhTeams {
     param([string]$Path = (Join-Path (Get-FhBackupDir) 'teams.json'))
     if (-not (Test-Path $Path)) { Write-FhLog "No team backup: $Path"; return }
-    foreach ($t in @(Get-Content $Path -Raw | ConvertFrom-Json)) {
+    foreach ($t in (Get-Content $Path -Raw | ConvertFrom-Json)) {
         if (Get-NetLbfoTeam -Name $t.Name -ErrorAction SilentlyContinue) { continue }
         $members = @($t.Members | Where-Object { Get-NetAdapter -Name $_ -ErrorAction SilentlyContinue })
         if (-not $members) { Write-FhLog "WARNING: no member of team $($t.Name) present"; continue }
@@ -572,7 +579,7 @@ function Limit-FhIscsiSessions {
 function Restore-FhIscsiSessions {
     param([string]$Path = (Join-Path (Get-FhBackupDir) 'iscsi.json'))
     if (-not (Test-Path $Path)) { return }
-    foreach ($g in @(Get-Content $Path -Raw | ConvertFrom-Json) | Group-Object Target) {
+    foreach ($g in (Get-Content $Path -Raw | ConvertFrom-Json) | Group-Object Target) {
         $have = @(Get-IscsiSession -ErrorAction SilentlyContinue | Where-Object TargetNodeAddress -eq $g.Name).Count
         foreach ($s in $g.Group | Select-Object -Skip $have) {
             if (-not $s.Portal) { continue }

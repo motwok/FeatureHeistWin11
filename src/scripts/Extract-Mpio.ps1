@@ -14,7 +14,7 @@
 [CmdletBinding()]
 param([string]$SourcePath, [int]$Index, [string]$PayloadPath, [string]$MountPath, [object]$Source)
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
 Assert-FhAdmin
 $Package = 'Microsoft-Windows-MultipathIo-Package'
 
