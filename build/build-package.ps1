@@ -72,7 +72,7 @@ if (Test-Path $work) { Remove-Item $work -Recurse -Force }
 New-Item -ItemType Directory -Force $work | Out-Null
 $lcid = @{}
 # WixUI has no own strings for these; its dialogs fall back to the parent language
-$uiFallback = @{ 'en-GB' = 'en-US'; 'es-MX' = 'es-ES'; 'fr-CA' = 'fr-FR' }
+$uiFallback = @{ 'en-GB' = 'en-US'; 'es-MX' = 'es-ES'; 'fr-CA' = 'fr-FR'; 'sr-Latn-RS' = 'sr-Latn-CS' }
 foreach ($c in $cultures) {
     $o = Join-Path $work "$c.msi"
     $a = @('build', '-acceptEula', 'wix7', $wxs, '-arch', 'x64', '-culture', $c, '-loc', "src\installer\$c.wxl",
