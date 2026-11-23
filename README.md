@@ -4,6 +4,8 @@
 [![Release](https://img.shields.io/github/v/release/motwok/FeatureHeistWin11)](https://github.com/motwok/FeatureHeistWin11/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-Windows%2011%20x64%20(26100)-blue)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-blue)
+![Audience](https://img.shields.io/badge/audience-Windows%20admins%20%7C%20homelab-blueviolet)
+![Use](https://img.shields.io/badge/use-lab%20%26%20test%20only-orange)
 [![License](https://img.shields.io/github/license/motwok/FeatureHeistWin11)](LICENSE)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Me-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/motwok)
 
@@ -96,6 +98,11 @@ For lab and test use only. Using Windows Server components on a Windows client i
 by the Windows client license. Not affiliated with or endorsed by Microsoft. Use at your own
 risk: MPIO is part of the storage stack, LBFO of the network stack. Try it in a virtual machine
 with a checkpoint first.
+
+## Credits
+
+Feature Heist was inspired by **Windows11LBFO** by hifihedgehog (`hifihedgehog/Windows11LBFO` on GitHub),
+which first brought the Server NIC teaming driver to Windows 11. Many thanks for that groundwork.
 
 ## Help and contributing
 
