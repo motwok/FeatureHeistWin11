@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="zh-CN" Codepage="936" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="2052" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="&#24050;&#23433;&#35013;&#26356;&#39640;&#29256;&#26412;&#30340; Feature Heist&#12290;" />
+  <String Id="NeedWin11" Value="Feature Heist &#38656;&#35201; 64 &#20301; Windows 11&#12290;" />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="&#24102; MSDSM &#30340;&#22810;&#36335;&#24452; I/O(&#23384;&#20648;&#22534;&#26632;)&#12290;" />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="NIC &#32452;&#21512;&#39537;&#21160;&#31243;&#24207;(&#32593;&#32476;&#22534;&#26632;)&#12290;" />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="NIC &#32452;&#21512;&#31649;&#29702;&#25511;&#21046;&#21488;&#12290;" />
+  <String Id="SrcTitle" Value="Windows Server &#20171;&#36136;" />
+  <String Id="SrcDesc" Value="&#23558;&#20174;&#21516;&#19968;&#20869;&#37096;&#29256;&#26412;&#30340; Windows Server &#20171;&#36136;&#20013;&#25552;&#21462;&#25991;&#20214;&#12290;" />
+  <String Id="SrcIso" Value="Windows Server ISO&#12289;install.wim &#25110;&#39537;&#21160;&#22120;&#12290;&#22914;&#26524;&#24050;&#25552;&#21462;&#25991;&#20214;,&#35831;&#30041;&#31354;&#12290;" />
+  <String Id="SrcPayload" Value="&#29992;&#20110;&#23384;&#25918;&#25552;&#21462;&#25991;&#20214;&#30340;&#25991;&#20214;&#22841;,&#25110;&#21253;&#21547;&#20808;&#21069;&#25552;&#21462;&#25991;&#20214;&#30340;&#25991;&#20214;&#22841;:" />
+  <String Id="SrcBrowse" Value="&#27983;&#35272;(&amp;B)..." />
+  <String Id="SrcClaim" Value="MPIO: &#30001; MSDSM &#33258;&#21160;&#22768;&#26126;" />
+  <String Id="SrcClaimIscsi" Value="iSCSI(&amp;I)" />
+  <String Id="SrcClaimSas" Value="SAS(&amp;S)(&#20063;&#20250;&#22768;&#26126;&#26412;&#22320; SAS &#30913;&#30424;,&#21487;&#33021;&#21253;&#25324;&#31995;&#32479;&#30913;&#30424;)" />
+  <String Id="ForeignTitle" Value="LBFO &#24050;&#23433;&#35013;" />
+  <String Id="ForeignDesc" Value="&#30001;&#20854;&#20182;&#24037;&#20855;&#23433;&#35013;,&#20363;&#22914; Windows11LBFO&#12290;" />
+  <String Id="ForeignText" Value="LBFO(NIC &#32452;&#21512;)&#24050;&#30001;&#20854;&#20182;&#24037;&#20855;&#23433;&#35013;,&#20363;&#22914; Windows11LBFO&#12290;Feature Heist &#19981;&#20250;&#26356;&#25913;&#23427;&#21450;&#20854;&#32452;&#21512;;LbfoAdmin &#21487;&#19982;&#20854;&#37197;&#21512;&#20351;&#29992;&#12290;&#22914;&#38656;&#26367;&#25442;,&#35831;&#20351;&#29992; https://github.com/motwok/FeatureHeistWin11 &#20013;&#30340; tools\Migrate-FromWindows11LBFO.ps1&#12290;&#36339;&#36807; LBFO &#24182;&#23433;&#35013;&#20854;&#20182;&#25152;&#36873;&#21253;,&#25110;&#21462;&#28040;&#12290;" />
+  <String Id="ForeignSkip" Value="&#36339;&#36807; LBFO(&amp;S)" />
+  <String Id="ForeignOnly" Value="LBFO &#24050;&#30001;&#20854;&#20182;&#24037;&#20855;&#23433;&#35013;(&#20363;&#22914; Windows11LBFO),&#19988;&#26159;&#21807;&#19968;&#36873;&#25321;&#30340;&#21253;&#12290;&#22914;&#38656;&#26367;&#25442;,&#35831;&#20351;&#29992; https://github.com/motwok/FeatureHeistWin11 &#20013;&#30340; tools\Migrate-FromWindows11LBFO.ps1&#12290;" />
+</WixLocalization>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="lv-LV" Codepage="1257" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1062" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Jau ir instal&#275;ta jaun&#257;ka Feature Heist versija." />
+  <String Id="NeedWin11" Value="Feature Heist nepiecie&#353;ama 64 bitu Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O ar MSDSM (kr&#257;tuves steks)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="T&#299;kla kar&#353;u grup&#275;&#353;anas draiveris (t&#299;kla steks)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="T&#299;kla kar&#353;u grup&#275;&#353;anas p&#257;rvald&#299;bas konsole." />
+  <String Id="SrcTitle" Value="Windows Server datu nes&#275;js" />
+  <String Id="SrcDesc" Value="Faili tiek izg&#363;ti no j&#363;su t&#257;s pa&#353;as b&#363;v&#275;juma versijas Windows Server datu nes&#275;ja." />
+  <String Id="SrcIso" Value="Windows Server ISO, install.wim vai disks. Atst&#257;jiet tuk&#353;u, ja faili jau ir izg&#363;ti." />
+  <String Id="SrcPayload" Value="Mape izg&#363;tajiem failiem vai mape ar iepriek&#353; izg&#363;tiem failiem:" />
+  <String Id="SrcBrowse" Value="&amp;P&#257;rl&#363;kot..." />
+  <String Id="SrcClaim" Value="MPIO: autom&#257;tiska p&#257;r&#326;em&#353;ana ar MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (p&#257;r&#326;em ar&#299; lok&#257;los SAS diskus, iesp&#275;jams, ar&#299; sist&#275;mas disku)" />
+  <String Id="ForeignTitle" Value="LBFO jau ir instal&#275;ts" />
+  <String Id="ForeignDesc" Value="Instal&#275;ts ar citu r&#299;ku, piem., Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (t&#299;kla kar&#353;u grup&#275;&#353;ana) jau ir instal&#275;ts ar citu r&#299;ku, piem., Windows11LBFO. Feature Heist atst&#257;j to un t&#257; grupas nemain&#299;tas; LbfoAdmin darbojas ar to. Lai to aizst&#257;tu, izmantojiet tools\Migrate-FromWindows11LBFO.ps1 no https://github.com/motwok/FeatureHeistWin11. Izlaidiet LBFO un instal&#275;jiet p&#257;r&#275;j&#257;s atlas&#299;t&#257;s pakotnes vai atceliet." />
+  <String Id="ForeignSkip" Value="&amp;Izlaist LBFO" />
+  <String Id="ForeignOnly" Value="LBFO jau ir instal&#275;ts ar citu r&#299;ku (piem., Windows11LBFO) un ir vien&#299;g&#257; atlas&#299;t&#257; pakotne. Lai to aizst&#257;tu, izmantojiet tools\Migrate-FromWindows11LBFO.ps1 no https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

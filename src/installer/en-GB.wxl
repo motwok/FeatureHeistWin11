@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-GB" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="2057" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="A newer version of Feature Heist is already installed." />
+  <String Id="NeedWin11" Value="Feature Heist requires 64-bit Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O with MSDSM (storage stack)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="NIC teaming driver (network stack)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="NIC teaming management console." />
+  <String Id="SrcTitle" Value="Windows Server media" />
+  <String Id="SrcDesc" Value="Files are extracted from your Windows Server media of the same build." />
+  <String Id="SrcIso" Value="Windows Server ISO, install.wim or drive. Leave empty if the files were extracted before." />
+  <String Id="SrcPayload" Value="Folder for the extracted files, or folder with files extracted before:" />
+  <String Id="SrcBrowse" Value="&amp;Browse..." />
+  <String Id="SrcClaim" Value="MPIO: automatic claim by MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (also claims local SAS disks, possibly the system disk)" />
+  <String Id="ForeignTitle" Value="LBFO is already installed" />
+  <String Id="ForeignDesc" Value="Installed by another tool, e.g. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (NIC teaming) is already installed by another tool, e.g. Windows11LBFO. Feature Heist leaves it and its teams unchanged; LbfoAdmin works with it. To replace it, use tools\Migrate-FromWindows11LBFO.ps1 from https://github.com/motwok/FeatureHeistWin11. Skip LBFO and install the other selected packages, or cancel." />
+  <String Id="ForeignSkip" Value="&amp;Skip LBFO" />
+  <String Id="ForeignOnly" Value="LBFO is already installed by another tool (e.g. Windows11LBFO) and is the only package selected. To replace it, use tools\Migrate-FromWindows11LBFO.ps1 from https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

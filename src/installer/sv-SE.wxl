@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="sv-SE" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1053" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="En nyare version av Feature Heist &#228;r redan installerad." />
+  <String Id="NeedWin11" Value="Feature Heist kr&#228;ver 64-bitars Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O med MSDSM (lagringsstack)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Drivrutin f&#246;r NIC-teaming (n&#228;tverksstack)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Hanteringskonsol f&#246;r NIC-teaming." />
+  <String Id="SrcTitle" Value="Windows Server-media" />
+  <String Id="SrcDesc" Value="Filerna extraheras fr&#229;n ditt Windows Server-media med samma version." />
+  <String Id="SrcIso" Value="Windows Server-ISO, install.wim eller enhet. L&#228;mna tomt om filerna redan har extraherats." />
+  <String Id="SrcPayload" Value="Mapp f&#246;r de extraherade filerna, eller mapp med tidigare extraherade filer:" />
+  <String Id="SrcBrowse" Value="&amp;Bl&#228;ddra..." />
+  <String Id="SrcClaim" Value="MPIO: automatiskt anspr&#229;k av MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (g&#246;r &#228;ven anspr&#229;k p&#229; lokala SAS-diskar, eventuellt systemdisken)" />
+  <String Id="ForeignTitle" Value="LBFO &#228;r redan installerat" />
+  <String Id="ForeignDesc" Value="Installerat av ett annat verktyg, t.ex. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (NIC-teaming) &#228;r redan installerat av ett annat verktyg, t.ex. Windows11LBFO. Feature Heist l&#228;mnar det och dess team of&#246;r&#228;ndrade; LbfoAdmin fungerar med det. Anv&#228;nd tools\Migrate-FromWindows11LBFO.ps1 fr&#229;n https://github.com/motwok/FeatureHeistWin11 f&#246;r att ers&#228;tta det. Hoppa &#246;ver LBFO och installera de andra valda paketen, eller avbryt." />
+  <String Id="ForeignSkip" Value="&amp;Hoppa &#246;ver LBFO" />
+  <String Id="ForeignOnly" Value="LBFO &#228;r redan installerat av ett annat verktyg (t.ex. Windows11LBFO) och &#228;r det enda valda paketet. Anv&#228;nd tools\Migrate-FromWindows11LBFO.ps1 fr&#229;n https://github.com/motwok/FeatureHeistWin11 f&#246;r att ers&#228;tta det." />
+</WixLocalization>

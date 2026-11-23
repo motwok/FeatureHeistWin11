@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="fi-FI" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1035" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Feature Heistin uudempi versio on jo asennettu." />
+  <String Id="NeedWin11" Value="Feature Heist edellytt&#228;&#228; 64-bittist&#228; Windows 11:t&#228;." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O ja MSDSM (tallennuspino)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Verkkokorttien ryhmittelyn ohjain (verkkopino)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Verkkokorttien ryhmittelyn hallintakonsoli." />
+  <String Id="SrcTitle" Value="Windows Server -tallennusv&#228;line" />
+  <String Id="SrcDesc" Value="Tiedostot puretaan saman koontiversion Windows Server -tallennusv&#228;lineelt&#228;si." />
+  <String Id="SrcIso" Value="Windows Server -ISO, install.wim tai asema. J&#228;t&#228; tyhj&#228;ksi, jos tiedostot on jo purettu." />
+  <String Id="SrcPayload" Value="Kansio purettaville tiedostoille tai kansio, jossa on aiemmin puretut tiedostot:" />
+  <String Id="SrcBrowse" Value="&amp;Selaa..." />
+  <String Id="SrcClaim" Value="MPIO: MSDSM:n automaattinen k&#228;ytt&#246;&#246;notto" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (ottaa k&#228;ytt&#246;&#246;n my&#246;s paikalliset SAS-levyt, mahdollisesti j&#228;rjestelm&#228;levyn)" />
+  <String Id="ForeignTitle" Value="LBFO on jo asennettu" />
+  <String Id="ForeignDesc" Value="Asennettu toisella ty&#246;kalulla, esim. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (verkkokorttien ryhmittely) on jo asennettu toisella ty&#246;kalulla, esim. Windows11LBFO. Feature Heist j&#228;tt&#228;&#228; sen ja sen ryhm&#228;t ennalleen; LbfoAdmin toimii sen kanssa. Korvaa se k&#228;ytt&#228;m&#228;ll&#228; ty&#246;kalua tools\Migrate-FromWindows11LBFO.ps1 osoitteesta https://github.com/motwok/FeatureHeistWin11. Ohita LBFO ja asenna muut valitut paketit, tai peruuta." />
+  <String Id="ForeignSkip" Value="&amp;Ohita LBFO" />
+  <String Id="ForeignOnly" Value="LBFO on jo asennettu toisella ty&#246;kalulla (esim. Windows11LBFO), ja se on ainoa valittu paketti. Korvaa se k&#228;ytt&#228;m&#228;ll&#228; ty&#246;kalua tools\Migrate-FromWindows11LBFO.ps1 osoitteesta https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

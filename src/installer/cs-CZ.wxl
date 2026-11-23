@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="cs-CZ" Codepage="1250" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1029" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Nov&#283;j&#353;&#237; verze Feature Heist je ji&#382; nainstalov&#225;na." />
+  <String Id="NeedWin11" Value="Feature Heist vy&#382;aduje 64bitov&#253; Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O s MSDSM (&#250;lo&#382;n&#253; z&#225;sobn&#237;k)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Ovlada&#269; seskupov&#225;n&#237; s&#237;&#357;ov&#253;ch karet (s&#237;&#357;ov&#253; z&#225;sobn&#237;k)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Konzola pro spr&#225;vu seskupov&#225;n&#237; s&#237;&#357;ov&#253;ch karet." />
+  <String Id="SrcTitle" Value="M&#233;dium Windows Server" />
+  <String Id="SrcDesc" Value="Soubory se extrahuj&#237; z va&#353;eho m&#233;dia Windows Server se stejn&#253;m sestaven&#237;m." />
+  <String Id="SrcIso" Value="ISO Windows Server, install.wim nebo jednotka. Ponechte pr&#225;zdn&#233;, pokud ji&#382; byly soubory extrahov&#225;ny." />
+  <String Id="SrcPayload" Value="Slo&#382;ka pro extrahovan&#233; soubory nebo slo&#382;ka s d&#345;&#237;ve extrahovan&#253;mi soubory:" />
+  <String Id="SrcBrowse" Value="&amp;Proch&#225;zet..." />
+  <String Id="SrcClaim" Value="MPIO: automatick&#233; p&#345;evzet&#237; pomoc&#237; MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (p&#345;evezme i m&#237;stn&#237; disky SAS, p&#345;&#237;padn&#283; syst&#233;mov&#253; disk)" />
+  <String Id="ForeignTitle" Value="LBFO je ji&#382; nainstalov&#225;no" />
+  <String Id="ForeignDesc" Value="Nainstalov&#225;no jin&#253;m n&#225;strojem, nap&#345;. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (seskupov&#225;n&#237; s&#237;&#357;ov&#253;ch karet) je ji&#382; nainstalov&#225;no jin&#253;m n&#225;strojem, nap&#345;. Windows11LBFO. Feature Heist ho i jeho t&#253;my ponech&#225; beze zm&#283;ny; LbfoAdmin s n&#237;m funguje. K nahrazen&#237; pou&#382;ijte tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11. P&#345;esko&#269;te LBFO a nainstalujte ostatn&#237; vybran&#233; bal&#237;&#269;ky, nebo instalaci zru&#353;te." />
+  <String Id="ForeignSkip" Value="&amp;P&#345;esko&#269;it LBFO" />
+  <String Id="ForeignOnly" Value="LBFO je ji&#382; nainstalov&#225;no jin&#253;m n&#225;strojem (nap&#345;. Windows11LBFO) a je jedin&#253;m vybran&#253;m bal&#237;&#269;kem. K nahrazen&#237; pou&#382;ijte tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

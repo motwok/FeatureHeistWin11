@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="lt-LT" Codepage="1257" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1063" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Jau &#303;diegta naujesn&#279; Feature Heist versija." />
+  <String Id="NeedWin11" Value="Feature Heist reikalinga 64 bit&#371; Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O su MSDSM (saugyklos d&#279;klas)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Tinklo plok&#353;&#269;i&#371; grupavimo tvarkykl&#279; (tinklo d&#279;klas)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Tinklo plok&#353;&#269;i&#371; grupavimo valdymo konsol&#279;." />
+  <String Id="SrcTitle" Value="Windows Server laikmena" />
+  <String Id="SrcDesc" Value="Failai i&#353;skleid&#382;iami i&#353; j&#363;s&#371; tos pa&#269;ios versijos Windows Server laikmenos." />
+  <String Id="SrcIso" Value="Windows Server ISO, install.wim arba diskas. Palikite tu&#353;&#269;i&#261;, jei failai jau i&#353;skleisti." />
+  <String Id="SrcPayload" Value="Aplankas i&#353;skleistiems failams arba aplankas su anks&#269;iau i&#353;skleistais failais:" />
+  <String Id="SrcBrowse" Value="&amp;Nar&#353;yti..." />
+  <String Id="SrcClaim" Value="MPIO: automatinis per&#279;mimas naudojant MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (perima ir vietinius SAS diskus, galb&#363;t ir sistemos disk&#261;)" />
+  <String Id="ForeignTitle" Value="LBFO jau &#303;diegta" />
+  <String Id="ForeignDesc" Value="&#302;diegta kitu &#303;rankiu, pvz., Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (tinklo plok&#353;&#269;i&#371; grupavimas) jau &#303;diegta kitu &#303;rankiu, pvz., Windows11LBFO. Feature Heist palieka j&#261; ir jos grupes nepakeistas; LbfoAdmin veikia su ja. Nor&#279;dami pakeisti, naudokite tools\Migrate-FromWindows11LBFO.ps1 i&#353; https://github.com/motwok/FeatureHeistWin11. Praleiskite LBFO ir &#303;diekite kitus pasirinktus paketus arba at&#353;aukite." />
+  <String Id="ForeignSkip" Value="&amp;Praleisti LBFO" />
+  <String Id="ForeignOnly" Value="LBFO jau &#303;diegta kitu &#303;rankiu (pvz., Windows11LBFO) ir yra vienintelis pasirinktas paketas. Nor&#279;dami pakeisti, naudokite tools\Migrate-FromWindows11LBFO.ps1 i&#353; https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

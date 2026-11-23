@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="pl-PL" Codepage="1250" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1045" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Nowsza wersja Feature Heist jest ju&#380; zainstalowana." />
+  <String Id="NeedWin11" Value="Feature Heist wymaga 64-bitowego systemu Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O z MSDSM (stos magazynu)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Sterownik tworzenia zespo&#322;u kart sieciowych (stos sieciowy)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Konsola zarz&#261;dzania zespo&#322;ami kart sieciowych." />
+  <String Id="SrcTitle" Value="No&#347;nik systemu Windows Server" />
+  <String Id="SrcDesc" Value="Pliki s&#261; wyodr&#281;bniane z no&#347;nika Windows Server w tej samej kompilacji." />
+  <String Id="SrcIso" Value="Obraz ISO systemu Windows Server, install.wim lub dysk. Pozostaw puste, je&#347;li pliki zosta&#322;y ju&#380; wyodr&#281;bnione." />
+  <String Id="SrcPayload" Value="Folder na wyodr&#281;bnione pliki lub folder z wcze&#347;niej wyodr&#281;bnionymi plikami:" />
+  <String Id="SrcBrowse" Value="&amp;Przegl&#261;daj..." />
+  <String Id="SrcClaim" Value="MPIO: automatyczne przejmowanie przez MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (przejmuje tak&#380;e lokalne dyski SAS, by&#263; mo&#380;e dysk systemowy)" />
+  <String Id="ForeignTitle" Value="LBFO jest ju&#380; zainstalowany" />
+  <String Id="ForeignDesc" Value="Zainstalowany przez inne narz&#281;dzie, np. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (tworzenie zespo&#322;u kart sieciowych) jest ju&#380; zainstalowany przez inne narz&#281;dzie, np. Windows11LBFO. Feature Heist pozostawia go wraz z zespo&#322;ami bez zmian; LbfoAdmin z nim wsp&#243;&#322;pracuje. Aby go zast&#261;pi&#263;, u&#380;yj tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11. Pomi&#324; LBFO i zainstaluj pozosta&#322;e wybrane pakiety lub anuluj." />
+  <String Id="ForeignSkip" Value="&amp;Pomi&#324; LBFO" />
+  <String Id="ForeignOnly" Value="LBFO jest ju&#380; zainstalowany przez inne narz&#281;dzie (np. Windows11LBFO) i jest jedynym wybranym pakietem. Aby go zast&#261;pi&#263;, u&#380;yj tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

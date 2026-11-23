@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="ro-RO" Codepage="1250" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1048" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="O versiune mai nou&#259; de Feature Heist este deja instalat&#259;." />
+  <String Id="NeedWin11" Value="Feature Heist necesit&#259; Windows 11 pe 64 de bi&#355;i." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O cu MSDSM (stiva de stocare)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Driver pentru gruparea pl&#259;cilor de re&#355;ea (stiva de re&#355;ea)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Consol&#259; de gestionare a grup&#259;rii pl&#259;cilor de re&#355;ea." />
+  <String Id="SrcTitle" Value="Suport Windows Server" />
+  <String Id="SrcDesc" Value="Fi&#351;ierele sunt extrase de pe suportul Windows Server cu aceea&#351;i versiune de compilare." />
+  <String Id="SrcIso" Value="ISO Windows Server, install.wim sau unitate. L&#259;sa&#355;i gol dac&#259; fi&#351;ierele au fost deja extrase." />
+  <String Id="SrcPayload" Value="Folder pentru fi&#351;ierele extrase sau folder cu fi&#351;iere extrase anterior:" />
+  <String Id="SrcBrowse" Value="&amp;R&#259;sfoire..." />
+  <String Id="SrcClaim" Value="MPIO: revendicare automat&#259; de c&#259;tre MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (revendic&#259; &#351;i discurile SAS locale, posibil discul de sistem)" />
+  <String Id="ForeignTitle" Value="LBFO este deja instalat" />
+  <String Id="ForeignDesc" Value="Instalat de un alt instrument, de ex. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (gruparea pl&#259;cilor de re&#355;ea) este deja instalat de un alt instrument, de ex. Windows11LBFO. Feature Heist &#238;l las&#259; neschimbat, &#238;mpreun&#259; cu echipele sale; LbfoAdmin func&#355;ioneaz&#259; cu el. Pentru a-l &#238;nlocui, utiliza&#355;i tools\Migrate-FromWindows11LBFO.ps1 de la https://github.com/motwok/FeatureHeistWin11. Omite&#355;i LBFO &#351;i instala&#355;i celelalte pachete selectate sau anula&#355;i." />
+  <String Id="ForeignSkip" Value="&amp;Omitere LBFO" />
+  <String Id="ForeignOnly" Value="LBFO este deja instalat de un alt instrument (de ex. Windows11LBFO) &#351;i este singurul pachet selectat. Pentru a-l &#238;nlocui, utiliza&#355;i tools\Migrate-FromWindows11LBFO.ps1 de la https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

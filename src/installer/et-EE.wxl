@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="et-EE" Codepage="1257" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1061" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Feature Heisti uuem versioon on juba installitud." />
+  <String Id="NeedWin11" Value="Feature Heist vajab 64-bitist Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O koos MSDSM-iga (salvestuspinu)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="V&#245;rgukaartide r&#252;hmitamise draiver (v&#245;rgupinu)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="V&#245;rgukaartide r&#252;hmitamise halduskonsool." />
+  <String Id="SrcTitle" Value="Windows Serveri andmekandja" />
+  <String Id="SrcDesc" Value="Failid ekstraktitakse sama j&#228;rguga Windows Serveri andmekandjalt." />
+  <String Id="SrcIso" Value="Windows Serveri ISO, install.wim v&#245;i draiv. J&#228;tke t&#252;hjaks, kui failid on juba ekstraktitud." />
+  <String Id="SrcPayload" Value="Kaust ekstraktitud failide jaoks v&#245;i kaust varem ekstraktitud failidega:" />
+  <String Id="SrcBrowse" Value="&amp;Sirvi..." />
+  <String Id="SrcClaim" Value="MPIO: automaatne &#252;lev&#245;tmine MSDSM-i poolt" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (v&#245;tab &#252;le ka kohalikud SAS-kettad, v&#245;imalik et ka s&#252;steemiketta)" />
+  <String Id="ForeignTitle" Value="LBFO on juba installitud" />
+  <String Id="ForeignDesc" Value="Installitud muu t&#246;&#246;riistaga, nt Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (v&#245;rgukaartide r&#252;hmitamine) on juba installitud muu t&#246;&#246;riistaga, nt Windows11LBFO. Feature Heist j&#228;tab selle ja selle r&#252;hmad muutmata; LbfoAdmin t&#246;&#246;tab sellega. Asendamiseks kasutage tools\Migrate-FromWindows11LBFO.ps1 aadressilt https://github.com/motwok/FeatureHeistWin11. J&#228;tke LBFO vahele ja installige muud valitud paketid v&#245;i loobuge." />
+  <String Id="ForeignSkip" Value="&amp;J&#228;ta LBFO vahele" />
+  <String Id="ForeignOnly" Value="LBFO on juba installitud muu t&#246;&#246;riistaga (nt Windows11LBFO) ja on ainus valitud pakett. Asendamiseks kasutage tools\Migrate-FromWindows11LBFO.ps1 aadressilt https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>
