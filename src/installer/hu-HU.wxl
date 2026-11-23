@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="hu-HU" Codepage="1250" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1038" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="A Feature Heist egy &#250;jabb verzi&#243;ja m&#225;r telep&#237;tve van." />
+  <String Id="NeedWin11" Value="A Feature Heist 64 bites Windows 11 rendszert ig&#233;nyel." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O MSDSM-mel (t&#225;rol&#225;si verem)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="H&#225;l&#243;zati k&#225;rty&#225;k csoportos&#237;t&#225;s&#225;nak illeszt&#337;programja (h&#225;l&#243;zati verem)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="H&#225;l&#243;zati k&#225;rty&#225;k csoportos&#237;t&#225;s&#225;nak fel&#252;gyeleti konzolja." />
+  <String Id="SrcTitle" Value="Windows Server telep&#237;t&#337;adathordoz&#243;" />
+  <String Id="SrcDesc" Value="A f&#225;jlok az azonos buildsz&#225;m&#250; Windows Server telep&#237;t&#337;adathordoz&#243;r&#243;l lesznek kibontva." />
+  <String Id="SrcIso" Value="Windows Server ISO, install.wim vagy meghajt&#243;. Hagyja &#252;resen, ha a f&#225;jlok m&#225;r ki lettek bontva." />
+  <String Id="SrcPayload" Value="Mappa a kibontott f&#225;jloknak, vagy kor&#225;bban kibontott f&#225;jlokat tartalmaz&#243; mappa:" />
+  <String Id="SrcBrowse" Value="&amp;Tall&#243;z&#225;s..." />
+  <String Id="SrcClaim" Value="MPIO: automatikus ig&#233;nyl&#233;s az MSDSM &#225;ltal" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (a helyi SAS-lemezeket is ig&#233;nyli, ak&#225;r a rendszerlemezt is)" />
+  <String Id="ForeignTitle" Value="Az LBFO m&#225;r telep&#237;tve van" />
+  <String Id="ForeignDesc" Value="M&#225;s eszk&#246;z telep&#237;tette, pl. Windows11LBFO." />
+  <String Id="ForeignText" Value="Az LBFO (h&#225;l&#243;zati k&#225;rty&#225;k csoportos&#237;t&#225;sa) m&#225;r telep&#237;tve van egy m&#225;sik eszk&#246;zzel, pl. Windows11LBFO. A Feature Heist azt &#233;s a csoportjait v&#225;ltozatlanul hagyja; az LbfoAdmin m&#369;k&#246;dik vele. A cser&#233;hez haszn&#225;lja a(z) tools\Migrate-FromWindows11LBFO.ps1 eszk&#246;zt innen: https://github.com/motwok/FeatureHeistWin11. Hagyja ki az LBFO-t, &#233;s telep&#237;tse a t&#246;bbi kijel&#246;lt csomagot, vagy szak&#237;tsa meg." />
+  <String Id="ForeignSkip" Value="LBFO &amp;kihagy&#225;sa" />
+  <String Id="ForeignOnly" Value="Az LBFO m&#225;r telep&#237;tve van egy m&#225;sik eszk&#246;zzel (pl. Windows11LBFO), &#233;s ez az egyetlen kijel&#246;lt csomag. A cser&#233;hez haszn&#225;lja a(z) tools\Migrate-FromWindows11LBFO.ps1 eszk&#246;zt innen: https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

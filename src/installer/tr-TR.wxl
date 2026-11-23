@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="tr-TR" Codepage="1254" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1055" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Feature Heist'in daha yeni bir s&#252;r&#252;m&#252; zaten y&#252;kl&#252;." />
+  <String Id="NeedWin11" Value="Feature Heist, 64 bit Windows 11 gerektirir." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="MSDSM ile Multipath I/O (depolama y&#305;&#287;&#305;n&#305;)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="NIC ekip olu&#351;turma s&#252;r&#252;c&#252;s&#252; (a&#287; y&#305;&#287;&#305;n&#305;)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="NIC ekip olu&#351;turma y&#246;netim konsolu." />
+  <String Id="SrcTitle" Value="Windows Server medyas&#305;" />
+  <String Id="SrcDesc" Value="Dosyalar, ayn&#305; derlemeye sahip Windows Server medyan&#305;zdan ay&#305;klan&#305;r." />
+  <String Id="SrcIso" Value="Windows Server ISO, install.wim veya s&#252;r&#252;c&#252;. Dosyalar daha &#246;nce ay&#305;kland&#305;ysa bo&#351; b&#305;rak&#305;n." />
+  <String Id="SrcPayload" Value="Ay&#305;klanan dosyalar i&#231;in klas&#246;r veya daha &#246;nce ay&#305;klanm&#305;&#351; dosyalar&#305;n bulundu&#287;u klas&#246;r:" />
+  <String Id="SrcBrowse" Value="&amp;G&#246;zat..." />
+  <String Id="SrcClaim" Value="MPIO: MSDSM ile otomatik sahiplenme" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (yerel SAS disklerini, muhtemelen sistem diskini de sahiplenir)" />
+  <String Id="ForeignTitle" Value="LBFO zaten y&#252;kl&#252;" />
+  <String Id="ForeignDesc" Value="Ba&#351;ka bir ara&#231;la y&#252;klendi, &#246;r. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (NIC ekip olu&#351;turma) ba&#351;ka bir ara&#231;la zaten y&#252;klenmi&#351;, &#246;r. Windows11LBFO. Feature Heist onu ve ekiplerini de&#287;i&#351;tirmez; LbfoAdmin onunla &#231;al&#305;&#351;&#305;r. De&#287;i&#351;tirmek i&#231;in https://github.com/motwok/FeatureHeistWin11 adresindeki tools\Migrate-FromWindows11LBFO.ps1 beti&#287;ini kullan&#305;n. LBFO'yu atlay&#305;p se&#231;ili di&#287;er paketleri y&#252;kleyin veya iptal edin." />
+  <String Id="ForeignSkip" Value="LBFO'yu &amp;atla" />
+  <String Id="ForeignOnly" Value="LBFO ba&#351;ka bir ara&#231;la zaten y&#252;klenmi&#351; (&#246;r. Windows11LBFO) ve se&#231;ili tek paket. De&#287;i&#351;tirmek i&#231;in https://github.com/motwok/FeatureHeistWin11 adresindeki tools\Migrate-FromWindows11LBFO.ps1 beti&#287;ini kullan&#305;n." />
+</WixLocalization>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="sl-SI" Codepage="1250" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+  <String Id="Lcid" Value="1060" />
+  <String Id="ProductName" Value="Feature Heist for Windows 11" />
+  <String Id="Downgrade" Value="Novej&#353;a razli&#269;ica programa Feature Heist je &#382;e name&#353;&#269;ena." />
+  <String Id="NeedWin11" Value="Feature Heist zahteva 64-bitni Windows 11." />
+  <String Id="FeatMpio" Value="MPIO" />
+  <String Id="FeatMpioDesc" Value="Multipath I/O z MSDSM (sklad za shranjevanje)." />
+  <String Id="FeatLbfo" Value="LBFO" />
+  <String Id="FeatLbfoDesc" Value="Gonilnik za zdru&#382;evanje omre&#382;nih kartic (omre&#382;ni sklad)." />
+  <String Id="FeatAdmin" Value="LbfoAdmin" />
+  <String Id="FeatAdminDesc" Value="Konzola za upravljanje zdru&#382;evanja omre&#382;nih kartic." />
+  <String Id="SrcTitle" Value="Nosilec za Windows Server" />
+  <String Id="SrcDesc" Value="Datoteke se raz&#353;irijo z va&#353;ega nosilca za Windows Server iste razli&#269;ice." />
+  <String Id="SrcIso" Value="ISO za Windows Server, install.wim ali pogon. Pustite prazno, &#269;e so datoteke &#382;e raz&#353;irjene." />
+  <String Id="SrcPayload" Value="Mapa za raz&#353;irjene datoteke ali mapa s prej raz&#353;irjenimi datotekami:" />
+  <String Id="SrcBrowse" Value="&amp;Prebrskaj..." />
+  <String Id="SrcClaim" Value="MPIO: samodejni prevzem prek MSDSM" />
+  <String Id="SrcClaimIscsi" Value="&amp;iSCSI" />
+  <String Id="SrcClaimSas" Value="&amp;SAS (prevzame tudi lokalne diske SAS, morda sistemski disk)" />
+  <String Id="ForeignTitle" Value="LBFO je &#382;e name&#353;&#269;en" />
+  <String Id="ForeignDesc" Value="Namestilo ga je drugo orodje, npr. Windows11LBFO." />
+  <String Id="ForeignText" Value="LBFO (zdru&#382;evanje omre&#382;nih kartic) je &#382;e name&#353;&#269;en z drugim orodjem, npr. Windows11LBFO. Feature Heist njega in njegove skupine pusti nespremenjene; LbfoAdmin deluje z njim. Za zamenjavo uporabite tools\Migrate-FromWindows11LBFO.ps1 iz https://github.com/motwok/FeatureHeistWin11. Presko&#269;ite LBFO in namestite druge izbrane pakete ali prekli&#269;ite." />
+  <String Id="ForeignSkip" Value="&amp;Presko&#269;i LBFO" />
+  <String Id="ForeignOnly" Value="LBFO je &#382;e name&#353;&#269;en z drugim orodjem (npr. Windows11LBFO) in je edini izbrani paket. Za zamenjavo uporabite tools\Migrate-FromWindows11LBFO.ps1 iz https://github.com/motwok/FeatureHeistWin11." />
+</WixLocalization>

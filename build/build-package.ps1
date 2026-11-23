@@ -71,10 +71,13 @@ $work = Join-Path $tmp "featureheist-msi-$Version"
 if (Test-Path $work) { Remove-Item $work -Recurse -Force }
 New-Item -ItemType Directory -Force $work | Out-Null
 $lcid = @{}
+# WixUI has no own strings for these; its dialogs fall back to the parent language
+$uiFallback = @{ 'en-GB' = 'en-US'; 'es-MX' = 'es-ES'; 'fr-CA' = 'fr-FR' }
 foreach ($c in $cultures) {
     $o = Join-Path $work "$c.msi"
     $a = @('build', '-acceptEula', 'wix7', $wxs, '-arch', 'x64', '-culture', $c, '-loc', "src\installer\$c.wxl",
         '-d', "Version=$Version", '-d', "Scripts=$scripts", '-o', $o)
+    if ($uiFallback[$c]) { $a += '-culture', $uiFallback[$c] }
     foreach ($e in $ext) { $a += '-ext', $e }
     Invoke-Exe wix $a
     $lcid[$c] = ([xml](Get-Content "src\installer\$c.wxl" -Raw)).WixLocalization.String | Where-Object Id -eq 'Lcid' | ForEach-Object Value
