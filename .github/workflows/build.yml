@@ -49,11 +49,19 @@ jobs:
           Import-Module Pester -RequiredVersion 6.2.0
           $c = New-PesterConfiguration
           $c.Run.Path = 'tests'
-          $c.Run.Exit = $true
+          $c.Run.PassThru = $true
           $c.CodeCoverage.Enabled = $true
           $c.CodeCoverage.Path = 'src/scripts'
+          $c.CodeCoverage.UseBreakpoints = $false
+          $c.CodeCoverage.CoveragePercentTarget = 100
           $c.TestResult.Enabled = $true
-          Invoke-Pester -Configuration $c
+          $r = Invoke-Pester -Configuration $c
+          $p = [math]::Round($r.CodeCoverage.CoveragePercent, 2)
+          "Tests: $($r.PassedCount) passed, $($r.FailedCount) failed. Coverage: $p %" >> $env:GITHUB_STEP_SUMMARY
+          $r.CodeCoverage.CommandsMissed | ForEach-Object { "::error file=$($_.File),line=$($_.Line)::not covered: $($_.Command)" }
+          if ($r.FailedCount -or $r.Result -ne 'Passed') { exit 1 }
+          # coverage is kept at 100 %
+          if ($p -lt 100) { "::error::Coverage $p % is below 100 %"; exit 1 }
 
   package:
     name: Package

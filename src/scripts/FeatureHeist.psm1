@@ -137,9 +137,14 @@ function Get-FhDataDir {
 
 function Get-FhWindowsDir { $env:SystemRoot }
 
+function Get-FhConsole {
+    [pscustomobject]@{ Host = $Host.Name; UserInteractive = [Environment]::UserInteractive; Arguments = [Environment]::GetCommandLineArgs() }
+}
+
 # Prompts only in a console a user can answer: not remoting, a task or -NonInteractive.
 function Test-FhInteractive {
-    $Host.Name -eq 'ConsoleHost' -and [Environment]::UserInteractive -and -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -like '-NonI*' })
+    $c = Get-FhConsole
+    $c.Host -eq 'ConsoleHost' -and $c.UserInteractive -and -not ($c.Arguments | Where-Object { $_ -like '-NonI*' })
 }
 
 function Test-FhSystem { [Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18' }
@@ -166,9 +171,12 @@ function Invoke-FhAsSystem {
 
 function ConvertTo-FhArg { param([string]$s) "'" + $s.Replace("'", "''") + "'" }
 
+function Test-FhAdmin {
+    (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
 function Assert-FhAdmin {
-    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    if (-not $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Run as administrator.' }
+    if (-not (Test-FhAdmin)) { throw 'Run as administrator.' }
 }
 
 # Servicing base build; enablement releases (25H2, 26H2) report a higher CurrentBuildNumber.
@@ -499,11 +507,17 @@ function Add-FhCatalog {
     Write-FhLog "Catalog registered: $BaseName"
 }
 
+# 0 or Win32 error
+function Invoke-FhCatalogRemoval { param([string]$BaseName) [FeatureHeist.Native]::RemoveCatalog($BaseName) }
+
 function Remove-FhCatalog {
     param([Parameter(Mandatory)][string]$BaseName)
-    $e = [FeatureHeist.Native]::RemoveCatalog($BaseName)
+    $e = Invoke-FhCatalogRemoval $BaseName
     if ($e -eq 0) { Write-FhLog "Catalog removed: $BaseName" } else { Write-FhLog "WARNING: removing catalog $BaseName failed: $e" }
 }
+
+# MOVEFILE_DELAY_UNTIL_REBOOT; $null as new name must reach the API as NULL, not ""
+function Register-FhDelayedDelete { param([string]$Path) [FeatureHeist.Native]::MoveFileEx($Path, [NullString]::Value, 4) }
 
 # Deletes now, or at next boot if locked.
 function Remove-FhFile {
@@ -511,8 +525,7 @@ function Remove-FhFile {
     if (-not (Test-Path $Path)) { return }
     try { Remove-Item $Path -Force -ErrorAction Stop; Write-FhLog "Deleted: $Path" }
     catch {
-        # MOVEFILE_DELAY_UNTIL_REBOOT
-        if ([FeatureHeist.Native]::MoveFileEx($Path, [NullString]::Value, 4)) { Write-FhLog "Deleted at next boot: $Path" }
+        if (Register-FhDelayedDelete $Path) { Write-FhLog "Deleted at next boot: $Path" }
         else { Write-FhLog "WARNING: cannot delete $Path" }
     }
 }
@@ -622,8 +635,10 @@ function Register-FhWatch {
     Register-ScheduledTask -TaskName 'FeatureHeist-Watch' -Force -Action $a -Trigger @($boot, $daily, $wu) `
         -Principal (New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest) `
         -Settings (New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 30)) | Out-Null
-    if (-not [Diagnostics.EventLog]::SourceExists($script:Product)) { New-EventLog -LogName Application -Source $script:Product }
+    if (-not (Test-FhEventSource)) { New-EventLog -LogName Application -Source $script:Product }
 }
+
+function Test-FhEventSource { [Diagnostics.EventLog]::SourceExists($script:Product) }
 
 function Unregister-FhWatch {
     if (Get-ChildItem "$script:RegRoot\Packages" -ErrorAction SilentlyContinue) { return }

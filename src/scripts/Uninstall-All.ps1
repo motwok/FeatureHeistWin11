@@ -13,11 +13,12 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('Mpio', 'Lbfo', 'LbfoAdmin')][string[]]$Packages = @('Mpio', 'Lbfo', 'LbfoAdmin'),
+    [ValidateSet('Mpio', 'Lbfo', 'LbfoAdmin')][string[]]$Packages,
     [switch]$Force, [switch]$NoReboot
 )
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
+if (-not $Packages) { $Packages = 'Mpio', 'Lbfo', 'LbfoAdmin' }
 Assert-FhAdmin
 
 $sel = @('LbfoAdmin', 'Lbfo', 'Mpio' | Where-Object { $Packages -contains $_ })
