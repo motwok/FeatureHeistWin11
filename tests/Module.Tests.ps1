@@ -75,6 +75,11 @@ Describe 'Log and run' {
         Should -Invoke -ModuleName FeatureHeist Register-ScheduledTask -Times 1 -ParameterFilter { $TaskName -eq 'FH-Test' }
         Should -Invoke -ModuleName FeatureHeist Unregister-ScheduledTask -Times 2
     }
+    It 'splits and checks list arguments' {
+        Split-FhList 'mpio, LbfoAdmin', 'Lbfo' 'Mpio', 'Lbfo', 'LbfoAdmin' Packages | Should -Be 'Mpio', 'LbfoAdmin', 'Lbfo'
+        @(Split-FhList $null 'iSCSI' ClaimBusType).Count | Should -Be 0
+        { Split-FhList 'Mpio,Foo' 'Mpio' Packages } | Should -Throw "*-Packages value 'Foo'*"
+    }
 }
 
 Describe 'State' {

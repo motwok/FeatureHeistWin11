@@ -25,15 +25,17 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('Mpio', 'Lbfo', 'LbfoAdmin')][string[]]$Packages,
+    [string[]]$Packages,
     [string]$PayloadPath, [string]$SourcePath, [int]$Index,
-    [ValidateSet('iSCSI', 'SAS')][string[]]$ClaimBusType = @(),
+    [string[]]$ClaimBusType,
     [switch]$RestoreTeams, [switch]$RestoreSessions,
     [switch]$NoReboot
 )
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
+$Packages = @(Split-FhList $Packages 'Mpio', 'Lbfo', 'LbfoAdmin' Packages)
 if (-not $Packages) { $Packages = 'Mpio', 'Lbfo', 'LbfoAdmin' }
+$ClaimBusType = @(Split-FhList $ClaimBusType 'iSCSI', 'SAS' ClaimBusType)
 Assert-FhAdmin
 
 $sel = @('Mpio', 'Lbfo', 'LbfoAdmin' | Where-Object { $Packages -contains $_ })
