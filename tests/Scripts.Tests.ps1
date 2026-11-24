@@ -152,6 +152,38 @@ Describe 'Scripts' {
         }
     }
 
+    Context 'Extract languages' {
+        BeforeEach {
+            Mock Open-FhLanguageSource { [pscustomobject]@{ Cabs = @(Get-Item $global:Fh.Mum); Iso = $null } }
+            Mock Expand-FhCab {
+                New-Item -ItemType Directory -Force $Destination | Out-Null
+                foreach ($n in 'MultipathIo', 'NDIS-LBFO-Admin-RSAT-Group') { Set-Content (Join-Path $Destination "Microsoft-Windows-$n-Package~31bf3856ad364e35~amd64~de-DE~10.0.26100.1.mum") '' }
+            }
+            Mock Export-FhLanguagePackage {
+                New-Item -ItemType Directory -Force (Join-Path $Destination 'de-DE') | Out-Null
+                Set-Content (Join-Path $Destination 'de-DE\update.mum') 'de'
+                'de-DE'
+            }
+        }
+        It 'adds language packs to extracted payloads only' {
+            $d = New-FhTestPayload $pl 'mpio'
+            Invoke-FhScript 'Extract-Languages.ps1' @{ SourcePath = 'l.iso'; PayloadPath = $pl } | Should -Be 0
+            (Test-FhManifest $d).Files.Path | Should -Contain 'de-DE\update.mum'
+            (Get-Content (Join-Path $d 'manifest.json') -Raw | ConvertFrom-Json).Source.Version | Should -Be '10.0.26100.1742'
+            Get-FhTestLog | Should -Match 'No lbfoadmin payload for build 26100'
+            Test-Path (Join-Path $data 'langpack') | Should -BeFalse
+        }
+        It 'fails without an extracted payload' {
+            Invoke-FhScript 'Extract-Languages.ps1' @{ SourcePath = 'l.iso'; PayloadPath = $pl } | Should -Be 1
+            Get-FhTestLog | Should -Match 'No language pack added'
+        }
+        It 'skips a language pack without our packages' {
+            New-FhTestPayload $pl 'mpio' | Out-Null
+            Mock Expand-FhCab { New-Item -ItemType Directory -Force $Destination | Out-Null }
+            Invoke-FhScript 'Extract-Languages.ps1' @{ SourcePath = 'l.iso'; PayloadPath = $pl } | Should -Be 1
+        }
+    }
+
     Context 'Install' {
         It 'installs MPIO with claims and pending session restore' {
             New-FhTestPayload $pl 'mpio' | Out-Null

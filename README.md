@@ -70,6 +70,7 @@ only selection it stops) and LbfoAdmin works with it. To replace it, see
 | `Install-All.ps1 [-Packages Mpio,Lbfo,LbfoAdmin] [-ClaimBusType iSCSI]` | install, one reboot |
 | `Uninstall-All.ps1 [-Force]` | remove; `-Force` removes NIC teams and ignores MPIO disks |
 | `Extract-/Install-/Uninstall-Mpio.ps1`, `-Lbfo.ps1`, `-LbfoAdmin.ps1` | single package |
+| `Extract-Languages.ps1 -SourcePath D:\Languages.iso [-Language de-DE,fr-FR]` | add MPIO/LbfoAdmin languages from the Server "Languages and Optional Features" ISO (after `Extract-All`) |
 
 Extracted files go to `scripts\payload\<build>\<package>` or `-PayloadPath`, which is remembered.
 `Install-*.ps1 -SourcePath ...` extracts first if nothing for this build is there. Uninstalling needs

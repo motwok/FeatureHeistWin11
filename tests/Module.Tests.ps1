@@ -343,6 +343,93 @@ Describe 'Package export' -Skip:(-not $IsAdmin) {
     }
 }
 
+Describe 'Language packs' {
+    BeforeEach {
+        Reset-FhTest | Out-Null
+        $src = Join-Path $TestDrive ([guid]::NewGuid())
+        $lof = Join-Path $src 'LanguagesAndOptionalFeatures'
+        New-Item -ItemType Directory -Force $lof | Out-Null
+        foreach ($l in 'de-de', 'fr-fr') { Set-Content (Join-Path $lof "Microsoft-Windows-Server-Language-Pack_x64_$l.cab") '' }
+        Mock -ModuleName FeatureHeist Mount-DiskImage { [pscustomobject]@{ ImagePath = $ImagePath } }
+        Mock -ModuleName FeatureHeist Dismount-DiskImage { }
+        Mock -ModuleName FeatureHeist Get-Volume -RemoveParameterType DiskImage { [pscustomobject]@{ DriveLetter = 'Q' } }
+    }
+
+    It 'finds the language pack CABs' {
+        (Open-FhLanguageSource $src).Cabs.Count | Should -Be 2
+        (Open-FhLanguageSource $src 'DE-de').Cabs.Name | Should -Be 'Microsoft-Windows-Server-Language-Pack_x64_de-de.cab'
+        (Open-FhLanguageSource $src 'de-DE,fr-FR').Cabs.Count | Should -Be 2
+        (Open-FhLanguageSource (Join-Path $lof 'Microsoft-Windows-Server-Language-Pack_x64_fr-fr.cab')).Cabs.Count | Should -Be 1
+        { Open-FhLanguageSource $src 'xx-XX' } | Should -Throw '*No Server language pack*'
+    }
+    It 'mounts an ISO and dismounts it when no language pack is on it' {
+        $iso = Join-Path $TestDrive 'l.iso'
+        Set-Content $iso ''
+        { Open-FhLanguageSource $iso } | Should -Throw '*No Server language pack*'
+        Should -Invoke -ModuleName FeatureHeist Dismount-DiskImage -Times 1
+    }
+    It 'expands a CAB into a clean folder' {
+        Mock -ModuleName FeatureHeist Invoke-FhNative { 0 }
+        $out = Join-Path $TestDrive ([guid]::NewGuid())
+        New-Item -ItemType Directory -Force $out | Out-Null
+        Set-Content (Join-Path $out 'old.txt') 'old'
+        Expand-FhCab 'x.cab' $out
+        Get-ChildItem $out | Should -BeNullOrEmpty
+        Should -Invoke -ModuleName FeatureHeist Invoke-FhNative -Times 1 -ParameterFilter { $FilePath -eq 'expand.exe' -and $ArgumentList -contains '-F:*' }
+    }
+
+    Context 'Export' {
+        BeforeEach {
+            $f = Join-Path $TestDrive ([guid]::NewGuid())
+            New-Item -ItemType Directory -Force $f | Out-Null
+            $t = '31bf3856ad364e35'
+            $dep = "amd64_microsoft-windows-f..ployment-languagepack_${t}_10.0.26100.1_de-de_aaa111"
+            $res = "amd64_microsoft-windows-foo.resources_${t}_10.0.26100.1_de-de_bbb222"
+            $decoy = "amd64_microsoft-windows-f..ployment-languagepack_${t}_10.0.26100.1_de-de_000000"
+            function New-Manifest([string]$Key, [string]$Name, [string[]]$Install) {
+                $deps = foreach ($n in $Install) { "<dependency><dependentAssembly dependencyType=`"install`"><assemblyIdentity name=`"$n`" version=`"10.0.26100.1`" processorArchitecture=`"amd64`" language=`"de-DE`"/></dependentAssembly></dependency>" }
+                Set-Content (Join-Path $f "$Key.manifest") ("<?xml version=`"1.0`"?><assembly xmlns=`"urn:schemas-microsoft-com:asm.v3`"><assemblyIdentity name=`"$Name`" version=`"10.0.26100.1`" processorArchitecture=`"amd64`" language=`"de-DE`"/>$deps</assembly>")
+            }
+            New-Manifest $decoy 'Microsoft-Windows-Bar-Deployment-LanguagePack'
+            New-Manifest $dep 'Microsoft-Windows-Foo-Deployment-LanguagePack' 'Microsoft-Windows-Foo.Resources'
+            New-Manifest $res 'Microsoft-Windows-Foo.Resources' 'Microsoft-Windows-Foo-Deployment-LanguagePack'
+            New-Manifest "amd64_microsoft-windows-other_${t}_10.0.26100.1_de-de_ddd444" 'Microsoft-Windows-Other'
+            Set-Content (Join-Path $f 'amd64_a_10.0.26100.1_de-de_x.manifest') ''
+            New-Item -ItemType Directory (Join-Path $f $res) | Out-Null
+            Set-Content (Join-Path $f "$res\foo.dll.mui") 'MZ'
+            function New-LangMum([string]$Name, [string]$Lang = 'de-DE') {
+                $m = Join-Path $f "P~${t}~amd64~de-DE~10.0.26100.1.mum"
+                Set-Content $m ('<?xml version="1.0"?><assembly xmlns="urn:schemas-microsoft-com:asm.v3"><package><parent><assemblyIdentity name="P" language="neutral"/></parent><update name="u"><component>' +
+                    "<assemblyIdentity name=`"$Name`" version=`"10.0.26100.1`" processorArchitecture=`"amd64`" language=`"$Lang`"/>" +
+                    '</component></update></package></assembly>')
+                Set-Content ([IO.Path]::ChangeExtension($m, '.cat')) 'cat'
+            }
+            $dest = Join-Path $TestDrive ([guid]::NewGuid())
+        }
+
+        It 'exports the package with the components it installs' {
+            New-LangMum 'Microsoft-Windows-Foo-Deployment-LanguagePack'
+            New-Item -ItemType Directory -Force (Join-Path $dest 'de-DE\stale') | Out-Null
+            Export-FhLanguagePackage $f 'P' $dest | Should -Be 'de-DE'
+            $names = Get-ChildItem (Join-Path $dest 'de-DE') | ForEach-Object Name
+            $names | Should -Contain 'update.mum'
+            $names | Should -Contain 'update.cat'
+            $names | Should -Contain "$dep.manifest"
+            $names | Should -Contain "$res.manifest"
+            $names | Should -Not -Contain "$decoy.manifest"
+            $names | Should -Not -Contain 'stale'
+            Test-Path (Join-Path $dest "de-DE\$res\foo.dll.mui") | Should -BeTrue
+        }
+        It 'needs the language pack' {
+            { Export-FhLanguagePackage $f 'P' $dest } | Should -Throw '*not found*'
+        }
+        It 'needs every component' {
+            New-LangMum 'Microsoft-Windows-Nope' 'neutral'
+            { Export-FhLanguagePackage $f 'P' $dest } | Should -Throw '*Component not found: Microsoft-Windows-Nope*'
+        }
+    }
+}
+
 Describe 'Catalogs and files' {
     BeforeEach { Reset-FhTest | Out-Null }
 
