@@ -22,12 +22,13 @@ param(
     [string]$PayloadPath,
     [string]$SourcePath,
     [int]$Index,
-    [ValidateSet('iSCSI', 'SAS')][string[]]$ClaimBusType = @(),
+    [string[]]$ClaimBusType,
     [switch]$RestoreSessions,
     [switch]$NoReboot
 )
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
+$ClaimBusType = @(Split-FhList $ClaimBusType 'iSCSI', 'SAS' ClaimBusType)
 Assert-FhAdmin
 $Task = 'FeatureHeist-MsdsmFix'
 

@@ -171,6 +171,16 @@ function Invoke-FhAsSystem {
 
 function ConvertTo-FhArg { param([string]$s) "'" + $s.Replace("'", "''") + "'" }
 
+# powershell -File passes "a,b" as one string
+function Split-FhList {
+    param([string[]]$Value, [Parameter(Mandatory)][string[]]$Allowed, [Parameter(Mandatory)][string]$Name)
+    foreach ($v in $Value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) {
+        $hit = $Allowed | Where-Object { $_ -eq $v }
+        if (-not $hit) { throw "Invalid -${Name} value '$v'. Allowed: $($Allowed -join ', ')." }
+        $hit
+    }
+}
+
 function Test-FhAdmin {
     (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }

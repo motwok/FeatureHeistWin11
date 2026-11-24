@@ -141,7 +141,7 @@ Describe 'Scripts' {
             Get-FhTestLog | Should -Match 'not in image'
         }
         It 'extracts several packages with one mount' {
-            Invoke-FhScript 'Extract-All.ps1' @{ Packages = 'Mpio', 'LbfoAdmin'; SourcePath = 'x.iso'; PayloadPath = $pl } | Should -Be 0
+            Invoke-FhScript 'Extract-All.ps1' @{ Packages = 'Mpio, lbfoadmin'; SourcePath = 'x.iso'; PayloadPath = $pl } | Should -Be 0
             Should -Invoke Mount-FhImage -Times 1 -ParameterFilter { $EnableFeature -contains 'MultiPathIO' }
             Invoke-FhScript 'Extract-All.ps1' @{ Packages = 'Lbfo'; SourcePath = 'x.iso' } | Should -Be 1
             Should -Invoke Mount-FhImage -Times 1 -ParameterFilter { -not $EnableFeature }

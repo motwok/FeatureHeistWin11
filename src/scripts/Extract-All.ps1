@@ -13,11 +13,12 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('Mpio', 'Lbfo', 'LbfoAdmin')][string[]]$Packages,
+    [string[]]$Packages,
     [string]$SourcePath, [int]$Index, [string]$PayloadPath
 )
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'FeatureHeist.psm1')
+$Packages = @(Split-FhList $Packages 'Mpio', 'Lbfo', 'LbfoAdmin' Packages)
 if (-not $Packages) { $Packages = 'Mpio', 'Lbfo', 'LbfoAdmin' }
 Assert-FhAdmin
 
