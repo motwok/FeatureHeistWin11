@@ -454,6 +454,79 @@ function Export-FhCbsPackage {
     }
 }
 
+# ---------------------------------------------------------- language packs
+
+# Server language pack CABs from the Languages and Optional Features ISO, its root or folder, or one CAB.
+function Open-FhLanguageSource {
+    param([Parameter(Mandatory)][string]$SourcePath, [string[]]$Language)
+    $iso = $null
+    if ($SourcePath -match '\.iso$') {
+        $iso = Mount-DiskImage -ImagePath (Resolve-Path $SourcePath).Path -PassThru
+        $SourcePath = '{0}:\' -f ($iso | Get-Volume).DriveLetter
+        Write-FhLog "ISO mounted as $SourcePath"
+    }
+    $cabs = if ($SourcePath -match '\.cab$') { @(Get-Item $SourcePath) }
+            else { @(foreach ($d in $SourcePath, [IO.Path]::Combine($SourcePath, 'LanguagesAndOptionalFeatures')) { Get-ChildItem $d -Filter 'Microsoft-Windows-Server-Language-Pack_x64_*.cab' -ErrorAction SilentlyContinue }) }
+    # powershell -File passes "de-DE,fr-FR" as one string
+    if ($Language) { $Language = $Language -split ','; $cabs = @($cabs | Where-Object { $Language -contains ($_.BaseName -split '_')[-1] }) }
+    if (-not $cabs) {
+        if ($iso) { Dismount-DiskImage -ImagePath $iso.ImagePath | Out-Null }
+        throw 'No Server language pack found; pass the Languages and Optional Features ISO and valid -Language codes.'
+    }
+    [pscustomobject]@{ Cabs = $cabs; Iso = $iso }
+}
+
+function Expand-FhCab {
+    param([Parameter(Mandatory)][string]$Cab, [Parameter(Mandatory)][string]$Destination)
+    if (Test-Path $Destination) { Remove-Item $Destination -Recurse -Force }
+    New-Item -ItemType Directory -Force $Destination | Out-Null
+    Invoke-FhNative expand.exe @($Cab, '-F:*', $Destination) | Out-Null
+}
+
+# Component key of an assembly identity in a folder of <key>.manifest files (names in keys may be shortened with '..').
+function Find-FhManifestKey {
+    param([Parameter(Mandatory)][string]$Folder, [Parameter(Mandatory)]$Identity)
+    $culture = if ($Identity.language -and $Identity.language -ne 'neutral') { $Identity.language.ToLower() } else { 'none' }
+    $name = $Identity.name.ToLower()
+    foreach ($f in Get-ChildItem $Folder -Filter "$($Identity.processorArchitecture)_*_$($Identity.version)_$($culture)_*.manifest") {
+        if ($f.BaseName -notmatch '^[^_]+_(.+)_[0-9a-f]{16}_') { continue }
+        $p = $Matches[1] -split '\.\.'
+        if (-not ($name.StartsWith($p[0]) -and $name.EndsWith($p[-1]))) { continue }
+        [xml]$m = Get-Content $f.FullName -Raw
+        if ($m.assembly.assemblyIdentity.name -eq $Identity.name) { return $f.BaseName }
+    }
+    throw "Component not found: $($Identity.name) $($Identity.version) $($Identity.language)"
+}
+
+# Language pack of a package from an expanded Server language pack, with the components it installs; returns the language.
+function Export-FhLanguagePackage {
+    param([Parameter(Mandatory)][string]$Folder, [Parameter(Mandatory)][string]$Name, [Parameter(Mandatory)][string]$Destination)
+    $mum = Get-ChildItem $Folder -Filter "$Name~*~amd64~*~*.mum" | Where-Object { ($_.BaseName -split '~')[3] } |
+        Sort-Object { [version](($_.BaseName -split '~')[-1]) } | Select-Object -Last 1
+    if (-not $mum) { throw "$Name language pack not found." }
+    $lang = ($mum.BaseName -split '~')[3]
+    $dest = Join-Path $Destination $lang
+    if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
+    New-Item -ItemType Directory -Force $dest | Out-Null
+    Copy-Item $mum.FullName (Join-Path $dest 'update.mum')
+    Copy-Item ([IO.Path]::ChangeExtension($mum.FullName, '.cat')) (Join-Path $dest 'update.cat')
+    [xml]$x = Get-Content $mum.FullName -Raw
+    $queue = New-Object System.Collections.Queue
+    foreach ($ai in @($x.SelectNodes('//*[local-name()="component" or local-name()="driver"]/*[local-name()="assemblyIdentity"]'))) { $queue.Enqueue($ai) }
+    $keys = New-Object 'System.Collections.Generic.HashSet[string]'
+    while ($queue.Count) {
+        $k = Find-FhManifestKey $Folder $queue.Dequeue()
+        if (-not $keys.Add($k)) { continue }
+        $man = Join-Path $Folder "$k.manifest"
+        Copy-Item $man $dest
+        if (Test-Path (Join-Path $Folder $k)) { Copy-Item (Join-Path $Folder $k) $dest -Recurse }
+        [xml]$m = Get-Content $man -Raw
+        foreach ($d in @($m.SelectNodes('//*[local-name()="dependentAssembly" and @dependencyType="install"]/*[local-name()="assemblyIdentity"]'))) { $queue.Enqueue($d) }
+    }
+    Write-FhLog "Exported $($mum.BaseName) ($($keys.Count) components)"
+    $lang
+}
+
 # Installs neutral package, then the language packs of installed UI languages; returns reboot flag.
 function Install-FhCbsPackage {
     param([Parameter(Mandatory)][string]$Path)
