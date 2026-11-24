@@ -79,6 +79,27 @@ another tool, `Install-All.ps1` asks whether to skip LBFO (unattended it skips i
 stops. Log:
 `%ProgramData%\FeatureHeist\FeatureHeist.log`.
 
+## Windows 11 install media
+
+`New-InstallMedia.ps1` builds a copy of a Windows 11 ISO that installs Feature Heist at the end of
+Windows Setup. Run as administrator:
+
+```powershell
+.\New-InstallMedia.ps1 -ClientIso D:\Win11.iso -SourcePath D:\Server2025.iso `
+    -MsiPath .\FeatureHeist-X.Y.Z.msi -OutputIso D:\Win11-FeatureHeist.iso `
+    [-Packages Mpio,Lbfo,LbfoAdmin] [-ClaimBusType iSCSI|SAS|None]
+```
+
+- The Windows 11 ISO stays unchanged. The packages are extracted from Server media of the same build
+  and put on the new ISO together with the MSI. The new ISO contains Microsoft files from your media:
+  keep it to yourself.
+- Setup runs the MSI from `SetupComplete.cmd`. Setup skips that file when Windows is installed with an
+  OEM product key; then the MSI runs at the first logon (`autounattend.xml` with only this command, the
+  Setup dialogs stay as they are). The PC reboots once if needed.
+- No Windows ADK needed (IMAPI2 from Windows). Media that already has an `autounattend.xml` or
+  `SetupComplete.cmd` is refused.
+- Log on the installed PC: `%ProgramData%\FeatureHeist\Media\msi.log`.
+
 ## After Windows updates
 
 Task `FeatureHeist-Watch` (SYSTEM; at startup, daily, after each installed update) checks that the
