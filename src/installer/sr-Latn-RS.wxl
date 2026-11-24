@@ -23,4 +23,6 @@
   <String Id="ForeignText" Value="LBFO (grupisanje mre&#382;nih kartica) je ve&#263; instaliran drugom alatkom, npr. Windows11LBFO. Feature Heist ostavlja njega i njegove timove nepromenjenim; LbfoAdmin radi sa njim. Za zamenu koristite tools\Migrate-FromWindows11LBFO.ps1 sa https://github.com/motwok/FeatureHeistWin11. Presko&#269;ite LBFO i instalirajte ostale izabrane pakete ili otka&#382;ite." />
   <String Id="ForeignSkip" Value="&amp;Presko&#269;i LBFO" />
   <String Id="ForeignOnly" Value="LBFO je ve&#263; instaliran drugom alatkom (npr. Windows11LBFO) i jedini je izabrani paket. Za zamenu koristite tools\Migrate-FromWindows11LBFO.ps1 sa https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="CustomizeDlgReset" Value="&amp;Ponovo postavi" />
 </WixLocalization>

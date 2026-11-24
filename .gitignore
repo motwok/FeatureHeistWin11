@@ -10,3 +10,6 @@ dist/
 out/
 *.msi
 *.wixpdb
+# custom action build output
+src/installer/ca/bin/
+src/installer/ca/obj/
