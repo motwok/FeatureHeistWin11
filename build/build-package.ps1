@@ -57,6 +57,8 @@ if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {
     $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
 }
 foreach ($e in $ext) { Invoke-Exe wix @('extension', 'add', '-acceptEula', 'wix7', '-g', "$e/$wixVersion") }
+# custom actions (C#, DTF); the .wxs references bin\x64\Release\net472\FeatureHeist.Ca.CA.dll
+Invoke-Exe dotnet @('build', 'src\installer\ca\FeatureHeist.Ca.csproj', '-c', 'Release', '-p:Platform=x64', '-p:AcceptEula=wix7', '--nologo')
 
 # late-bound Windows Installer COM; PSObject wrappers must not reach InvokeMember (DISP_E_TYPEMISMATCH)
 function Invoke-Com($o, [string]$m, [string]$kind, [object[]]$a = @()) {

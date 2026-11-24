@@ -23,4 +23,6 @@
   <String Id="ForeignText" Value="O LBFO (agrupamento de placas de rede) j&#225; est&#225; instalado por outra ferramenta, por exemplo, Windows11LBFO. O Feature Heist mant&#233;m-no inalterado, bem como as suas equipas; o LbfoAdmin funciona com ele. Para o substituir, utilize tools\Migrate-FromWindows11LBFO.ps1 de https://github.com/motwok/FeatureHeistWin11. Ignore o LBFO e instale os outros pacotes selecionados, ou cancele." />
   <String Id="ForeignSkip" Value="&amp;Ignorar LBFO" />
   <String Id="ForeignOnly" Value="O LBFO j&#225; est&#225; instalado por outra ferramenta (por exemplo, Windows11LBFO) e &#233; o &#250;nico pacote selecionado. Para o substituir, utilize tools\Migrate-FromWindows11LBFO.ps1 de https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="BrowseDlgComboLabel" Value="&amp;Pasta:" />
 </WixLocalization>

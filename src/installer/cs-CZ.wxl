@@ -23,4 +23,6 @@
   <String Id="ForeignText" Value="LBFO (seskupov&#225;n&#237; s&#237;&#357;ov&#253;ch karet) je ji&#382; nainstalov&#225;no jin&#253;m n&#225;strojem, nap&#345;. Windows11LBFO. Feature Heist ho i jeho t&#253;my ponech&#225; beze zm&#283;ny; LbfoAdmin s n&#237;m funguje. K nahrazen&#237; pou&#382;ijte tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11. P&#345;esko&#269;te LBFO a nainstalujte ostatn&#237; vybran&#233; bal&#237;&#269;ky, nebo instalaci zru&#353;te." />
   <String Id="ForeignSkip" Value="&amp;P&#345;esko&#269;it LBFO" />
   <String Id="ForeignOnly" Value="LBFO je ji&#382; nainstalov&#225;no jin&#253;m n&#225;strojem (nap&#345;. Windows11LBFO) a je jedin&#253;m vybran&#253;m bal&#237;&#269;kem. K nahrazen&#237; pou&#382;ijte tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="BrowseDlgComboLabel" Value="&amp;Slo&#382;ka:" />
 </WixLocalization>

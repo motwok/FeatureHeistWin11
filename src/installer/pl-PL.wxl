@@ -23,4 +23,7 @@
   <String Id="ForeignText" Value="LBFO (tworzenie zespo&#322;u kart sieciowych) jest ju&#380; zainstalowany przez inne narz&#281;dzie, np. Windows11LBFO. Feature Heist pozostawia go wraz z zespo&#322;ami bez zmian; LbfoAdmin z nim wsp&#243;&#322;pracuje. Aby go zast&#261;pi&#263;, u&#380;yj tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11. Pomi&#324; LBFO i zainstaluj pozosta&#322;e wybrane pakiety lub anuluj." />
   <String Id="ForeignSkip" Value="&amp;Pomi&#324; LBFO" />
   <String Id="ForeignOnly" Value="LBFO jest ju&#380; zainstalowany przez inne narz&#281;dzie (np. Windows11LBFO) i jest jedynym wybranym pakietem. Aby go zast&#261;pi&#263;, u&#380;yj tools\Migrate-FromWindows11LBFO.ps1 z https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="VerifyReadyDlgRemoveTitle" Value="{\WixUI_Font_Title}Gotowe do usuni&#281;cia: [ProductName]" />
+  <String Id="VerifyReadyDlgInstallTitle" Value="{\WixUI_Font_Title}Gotowe do instalacji: [ProductName]" />
 </WixLocalization>

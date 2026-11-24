@@ -23,4 +23,6 @@
   <String Id="ForeignText" Value="LBFO (zdru&#382;evanje omre&#382;nih kartic) je &#382;e name&#353;&#269;en z drugim orodjem, npr. Windows11LBFO. Feature Heist njega in njegove skupine pusti nespremenjene; LbfoAdmin deluje z njim. Za zamenjavo uporabite tools\Migrate-FromWindows11LBFO.ps1 iz https://github.com/motwok/FeatureHeistWin11. Presko&#269;ite LBFO in namestite druge izbrane pakete ali prekli&#269;ite." />
   <String Id="ForeignSkip" Value="&amp;Presko&#269;i LBFO" />
   <String Id="ForeignOnly" Value="LBFO je &#382;e name&#353;&#269;en z drugim orodjem (npr. Windows11LBFO) in je edini izbrani paket. Za zamenjavo uporabite tools\Migrate-FromWindows11LBFO.ps1 iz https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="VerifyReadyDlgRemoveTitle" Value="{\WixUI_Font_Title}Pripravljen na odstranitev: [ProductName]" />
 </WixLocalization>

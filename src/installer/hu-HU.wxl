@@ -23,4 +23,6 @@
   <String Id="ForeignText" Value="Az LBFO (h&#225;l&#243;zati k&#225;rty&#225;k csoportos&#237;t&#225;sa) m&#225;r telep&#237;tve van egy m&#225;sik eszk&#246;zzel, pl. Windows11LBFO. A Feature Heist azt &#233;s a csoportjait v&#225;ltozatlanul hagyja; az LbfoAdmin m&#369;k&#246;dik vele. A cser&#233;hez haszn&#225;lja a(z) tools\Migrate-FromWindows11LBFO.ps1 eszk&#246;zt innen: https://github.com/motwok/FeatureHeistWin11. Hagyja ki az LBFO-t, &#233;s telep&#237;tse a t&#246;bbi kijel&#246;lt csomagot, vagy szak&#237;tsa meg." />
   <String Id="ForeignSkip" Value="LBFO &amp;kihagy&#225;sa" />
   <String Id="ForeignOnly" Value="Az LBFO m&#225;r telep&#237;tve van egy m&#225;sik eszk&#246;zzel (pl. Windows11LBFO), &#233;s ez az egyetlen kijel&#246;lt csomag. A cser&#233;hez haszn&#225;lja a(z) tools\Migrate-FromWindows11LBFO.ps1 eszk&#246;zt innen: https://github.com/motwok/FeatureHeistWin11." />
+  <!-- WixUI text clipped at 150 % -->
+  <String Id="VerifyReadyDlgRemoveTitle" Value="{\WixUI_Font_Title}K&#233;szen &#225;ll a(z) [ProductName] elt&#225;vol&#237;t&#225;s&#225;ra" />
 </WixLocalization>
