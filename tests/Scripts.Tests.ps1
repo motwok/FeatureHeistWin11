@@ -152,6 +152,86 @@ Describe 'Scripts' {
         }
     }
 
+    Context 'Install media' {
+        BeforeEach {
+            $global:Fh.Media = Join-Path $TestDrive ([guid]::NewGuid())
+            New-Item -ItemType Directory -Force (Join-Path $Fh.Media 'sources') | Out-Null
+            $ci = Join-Path $TestDrive 'client.iso'
+            Set-Content $ci 'iso'
+            $msi = Join-Path $TestDrive 'fh.msi'
+            Set-Content $msi 'msi'
+            $out = Join-Path $TestDrive "$([guid]::NewGuid()).iso"
+            Mock Mount-FhIso { [pscustomobject]@{ Root = $global:Fh.Media + '\'; Label = 'CCCOMA'; ImagePath = 'client.iso' } }
+            Mock Dismount-DiskImage { }
+            Mock Open-FhClientImage { [pscustomobject]@{ Wim = 'install.wim'; Index = 1; Build = 26100 } }
+            Mock Get-FhImageBaseBuild { 26100 }
+            Mock New-FhIsoImage { 'img' }
+            Mock Add-FhIsoTree { }
+            Mock Save-FhIso { Set-Content $Path 'iso' }
+            $arg = @{ ClientIso = $ci; SourcePath = 'server.iso'; MsiPath = $msi; OutputIso = $out; Packages = 'Mpio'; Index = 2 }
+        }
+        It 'builds the ISO with MSI and payload' {
+            Mock Add-FhIsoTree { $global:Fh.Staged = @(Get-ChildItem $Source -Recurse -File | ForEach-Object { $_.FullName.Substring($Source.Length + 1) }) }
+            New-Item -ItemType Directory -Force (Join-Path (Get-FhDataDir) 'media\left-over') | Out-Null
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 0
+            Test-Path $out | Should -BeTrue
+            $Fh.Staged | Should -Contain 'autounattend.xml'
+            $Fh.Staged | Should -Contain 'sources\$OEM$\$1\ProgramData\FeatureHeist\Media\FeatureHeist.msi'
+            $Fh.Staged | Should -Contain 'sources\$OEM$\$1\ProgramData\FeatureHeist\Media\payload\26100\mpio\manifest.json'
+            Should -Invoke New-FhIsoImage -Times 1 -ParameterFilter { $Label -eq 'CCCOMA' }
+            Should -Invoke Get-FhImageBaseBuild -Times 0
+            Should -Invoke Dismount-DiskImage -Times 1
+            Test-Path (Join-Path (Get-FhDataDir) 'media') | Should -BeFalse
+            (Get-FhPayloadSetting).Value | Should -BeNullOrEmpty
+        }
+        It 'checks the kernel build when the image versions differ' {
+            Mock Open-FhClientImage { [pscustomobject]@{ Wim = 'install.wim'; Index = 1; Build = 26200 } }
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 0
+            Should -Invoke Get-FhImageBaseBuild -Times 1
+            Mock Get-FhImageBaseBuild { 22621 }
+            $arg.OutputIso = Join-Path $TestDrive 'b.iso'
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'Build mismatch: client 22621'
+            Test-Path $arg.OutputIso | Should -BeFalse
+        }
+        It 'stops on invalid input' {
+            $arg.Packages = 'LbfoAdmin'
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'LbfoAdmin needs Lbfo'
+            $arg.Packages = 'Mpio'
+            $arg.MsiPath = Join-Path $TestDrive 'none.msi'
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'File not found'
+            $arg.MsiPath = $msi
+            Set-Content $out 'old'
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'Output exists'
+            Get-Content $out | Should -Be 'old'
+            Should -Invoke Mount-FhIso -Times 0
+        }
+        It 'refuses media with an answer file' {
+            Set-Content (Join-Path $Fh.Media 'autounattend.xml') 'x'
+            $arg.Remove('Packages')
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'already contains autounattend.xml'
+            Should -Invoke Dismount-DiskImage -Times 1
+        }
+        It 'fails when the extraction fails and keeps the payload setting' {
+            Set-ItemProperty (Get-FhKey) -Name PayloadPath -Value 'C:\old'
+            $arg.Packages = 'Lbfo'
+            $arg.ClaimBusType = 'None'
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Get-FhTestLog | Should -Match 'Extraction failed'
+            (Get-FhPayloadSetting).Value | Should -Be 'C:\old'
+            Should -Invoke New-FhIsoImage -Times 0
+        }
+        It 'removes a partly written ISO' {
+            Mock Save-FhIso { Set-Content $Path 'part'; throw 'disk full' }
+            Invoke-FhScript 'New-InstallMedia.ps1' $arg | Should -Be 1
+            Test-Path $out | Should -BeFalse
+        }
+    }
+
     Context 'Extract languages' {
         BeforeEach {
             Mock Open-FhLanguageSource { [pscustomobject]@{ Cabs = @(Get-Item $global:Fh.Mum); Iso = $null } }

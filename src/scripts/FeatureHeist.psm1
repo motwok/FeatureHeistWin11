@@ -75,6 +75,28 @@ public static class Native {
         if (a == null) { a = SHA256.Create().ComputeHash(f); b = SHA1.Create().ComputeHash(f); }
         return new byte[][] { a, b };
     }
+    // IMAPI2 result image (COM IStream) to a file.
+    public static long CopyStream(object comStream, string path) {
+        System.Runtime.InteropServices.ComTypes.IStream s = (System.Runtime.InteropServices.ComTypes.IStream)comStream;
+        System.Runtime.InteropServices.ComTypes.STATSTG st;
+        s.Stat(out st, 1);
+        byte[] buf = new byte[1 << 20];
+        IntPtr pRead = Marshal.AllocHGlobal(4);
+        long total = 0;
+        try {
+            using (FileStream fs = File.Create(path)) {
+                while (total < st.cbSize) {
+                    s.Read(buf, buf.Length, pRead);
+                    int n = Marshal.ReadInt32(pRead);
+                    if (n <= 0) break;
+                    fs.Write(buf, 0, n);
+                    total += n;
+                }
+            }
+        } finally { Marshal.FreeHGlobal(pRead); }
+        if (total != st.cbSize) throw new IOException("Image stream ended after " + total + " of " + st.cbSize + " bytes.");
+        return total;
+    }
     public static bool Contains(byte[] hay, byte[][] needles) {
         foreach (byte[] n in needles) {
             for (int i = 0; i <= hay.Length - n.Length; i++) {
@@ -726,6 +748,155 @@ function Test-FhEventSource { [Diagnostics.EventLog]::SourceExists($script:Produ
 function Unregister-FhWatch {
     if (Get-ChildItem "$script:RegRoot\Packages" -ErrorAction SilentlyContinue) { return }
     Unregister-ScheduledTask -TaskName 'FeatureHeist-Watch' -Confirm:$false -ErrorAction SilentlyContinue
+}
+
+# ---------------------------------------------------------- install media
+
+$script:MediaDir = 'sources\$OEM$\$1\ProgramData\FeatureHeist\Media'
+
+# Raw registry payload path; Extract writes it, the media build puts it back.
+function Get-FhPayloadSetting {
+    $v = $null
+    if (Test-Path $script:RegRoot) {
+        $r = Get-ItemProperty $script:RegRoot
+        if ($r -and ($r.PSObject.Properties.Name -contains 'PayloadPath')) { $v = $r.PayloadPath }
+    }
+    [pscustomobject]@{ Exists = (Test-Path $script:RegRoot); Value = $v }
+}
+
+function Restore-FhPayloadSetting {
+    param([Parameter(Mandatory)]$Setting)
+    if (-not (Test-Path $script:RegRoot)) { return }
+    if (-not $Setting.Exists) { Remove-Item $script:RegRoot -Recurse -Force }
+    elseif ($null -eq $Setting.Value) { Remove-ItemProperty $script:RegRoot -Name PayloadPath -ErrorAction SilentlyContinue }
+    else { Set-ItemProperty $script:RegRoot -Name PayloadPath -Value $Setting.Value }
+}
+
+# Read-only ISO mount -> @{ Root; Label; ImagePath }.
+function Mount-FhIso {
+    param([Parameter(Mandatory)][string]$Path)
+    $d = Mount-DiskImage -ImagePath (Resolve-Path -LiteralPath $Path).Path -Access ReadOnly -StorageType ISO -PassThru
+    $v = $d | Get-Volume
+    [pscustomobject]@{ Root = '{0}:\' -f $v.DriveLetter; Label = $v.FileSystemLabel; ImagePath = $d.ImagePath }
+}
+
+# Windows 11 install image of a media root -> same shape as Open-FhSource.
+function Open-FhClientImage {
+    param([Parameter(Mandatory)][string]$Root)
+    $wim = 'install.wim', 'install.esd' | ForEach-Object { Join-Path $Root "sources\$_" } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if (-not $wim) { throw "No sources\install.wim/esd on $Root." }
+    $img = Get-WindowsImage -ImagePath $wim -Index 1
+    if ($img.ImageName -like '*Server*') { throw "$Root is Windows Server media, not Windows 11." }
+    Write-FhLog ('Client: {0} {1} {2}' -f $wim, $img.ImageName, $img.Version)
+    [pscustomobject]@{ Wim = $wim; Index = 1; Build = [int]($img.Version -split '\.')[2]; Name = $img.ImageName; Version = $img.Version; Iso = $null }
+}
+
+# ntoskrnl build of an image; enablement releases carry a higher image version (25H2: 26200 on 26100).
+function Get-FhImageBaseBuild {
+    param([Parameter(Mandatory)]$Source)
+    $img = Mount-FhImage $Source -Writable:($Source.Wim -like '*.esd')
+    try { (Get-Item (Join-Path $img.Path 'Windows\System32\ntoskrnl.exe')).VersionInfo.FileBuildPart }
+    finally { Dismount-FhImage $img }
+}
+
+# MSI, start script, SetupComplete.cmd and an answer file that only adds a first-logon command
+# (fallback: Setup skips SetupComplete.cmd with OEM product keys). Returns the payload folder.
+function New-FhMediaFiles {
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Msi, [Parameter(Mandatory)][string[]]$Packages, [string[]]$ClaimBusType)
+    $media = Join-Path $Path $script:MediaDir
+    $payload = Join-Path $media 'payload'
+    $scripts = Join-Path $Path 'sources\$OEM$\$$\Setup\Scripts'
+    New-Item -ItemType Directory -Force $payload, $scripts | Out-Null
+    Copy-Item -LiteralPath $Msi (Join-Path $media 'FeatureHeist.msi')
+    $names = @{ Mpio = 'MPIO'; Lbfo = 'LBFO'; LbfoAdmin = 'LbfoAdmin' }
+    $features = @('Core') + @($Packages | ForEach-Object { $names[$_] })
+    $iscsi = if ($ClaimBusType -contains 'iSCSI') { 'iSCSI' } else { '' }
+    $sas = if ($ClaimBusType -contains 'SAS') { 'SAS' } else { '' }
+    Set-Content (Join-Path $media 'Install.cmd') -Encoding ASCII -Value @(
+        '@echo off'
+        'rem Feature Heist: installs the MSI once, from SetupComplete.cmd or at the first logon.'
+        'set "D=%~dp0"'
+        'if exist "%D%result.txt" exit /b 0'
+        ('start "" /wait msiexec.exe /i "%D%FeatureHeist.msi" /qn ADDLOCAL={0} PAYLOADDIR="%D%payload" CLAIMISCSI="{1}" CLAIMSAS="{2}" REBOOT=ReallySuppress /l*v "%D%msi.log"' -f ($features -join ','), $iscsi, $sas)
+        'set "RC=%ERRORLEVEL%"'
+        '>"%D%result.txt" echo %RC%'
+        'if "%RC%"=="3010" shutdown.exe /r /t 30 /c "Feature Heist"'
+        'exit /b 0')
+    Set-Content (Join-Path $scripts 'SetupComplete.cmd') -Encoding ASCII -Value @(
+        '@echo off'
+        'call "%SystemDrive%\ProgramData\FeatureHeist\Media\Install.cmd"')
+    Set-Content (Join-Path $Path 'autounattend.xml') -Encoding UTF8 -Value @'
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <CommandLine>cmd.exe /c "%SystemDrive%\ProgramData\FeatureHeist\Media\Install.cmd"</CommandLine>
+          <Description>Feature Heist</Description>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+    </component>
+  </settings>
+</unattend>
+'@
+    $payload
+}
+
+# IMAPI2 image of a media root: UDF (install.wim exceeds 4 GB), boot entries for BIOS and UEFI.
+function New-FhIsoImage {
+    param([Parameter(Mandatory)][string]$Root, [Parameter(Mandatory)][string]$Label)
+    $fsi = New-Object -ComObject IMAPI2FS.MsftFileSystemImage
+    $fsi.FileSystemsToCreate = 4
+    $fsi.FreeMediaBlocks = 0
+    $fsi.VolumeName = $Label
+    $boot = [object[]]@(foreach ($b in ('boot\etfsboot.com', 0), ('efi\microsoft\boot\efisys.bin', 0xEF)) {
+        $f = Join-Path $Root $b[0]
+        if (-not (Test-Path -LiteralPath $f)) { throw "Boot image missing: $f" }
+        $o = New-Object -ComObject IMAPI2FS.BootOptions
+        $o.PlatformId = $b[1]
+        $o.Emulation = 0
+        $o.AssignBootImage((Open-FhComStream $f))
+        $o.psobject.BaseObject
+    })
+    # a direct assignment fails with E_NOINTERFACE (PowerShell wraps the array elements)
+    [void][System.__ComObject].InvokeMember('BootImageOptionsArray', [Reflection.BindingFlags]::SetProperty, $null, $fsi, @(, $boot))
+    $fsi.Root.AddTree($Root.TrimEnd('\'), $false)
+    $fsi
+}
+
+function Open-FhComStream {
+    param([Parameter(Mandatory)][string]$Path)
+    $s = New-Object -ComObject ADODB.Stream
+    $s.Type = 1
+    $s.Open()
+    $s.LoadFromFile($Path)
+    $s
+}
+
+# Adds a folder tree to the image: existing folders are merged, an existing file is an error.
+function Add-FhIsoTree {
+    param([Parameter(Mandatory)]$Image, [Parameter(Mandatory)][string]$Source, [string]$Target = '')
+    # no pipeline: a folder item is enumerable and would be unrolled into its children.
+    # Item() returns IFsiItem; the folder methods are only reachable late-bound.
+    $dir = $Image.Root
+    if ($Target) { $dir = $Image.Root.Item($Target) }
+    $call = { param($m, [object[]]$a) [void][System.__ComObject].InvokeMember($m, [Reflection.BindingFlags]::InvokeMethod, $null, $dir, $a) }
+    foreach ($i in Get-ChildItem -LiteralPath $Source -Force) {
+        $p = "$Target\$($i.Name)"
+        $kind = $Image.Exists($p)
+        if ($kind -eq 1 -and $i.PSIsContainer) { Add-FhIsoTree $Image $i.FullName $p }
+        elseif ($kind) { throw "The client media already contains $p." }
+        elseif ($i.PSIsContainer) { & $call 'AddTree' @($i.FullName, $true) }
+        else { & $call 'AddFile' @($i.Name, (Open-FhComStream $i.FullName).psobject.BaseObject) }
+    }
+}
+
+function Save-FhIso {
+    param([Parameter(Mandatory)]$Image, [Parameter(Mandatory)][string]$Path)
+    $n = [FeatureHeist.Native]::CopyStream($Image.CreateResultImage().ImageStream, $Path)
+    Write-FhLog "ISO written: $Path ($n bytes)"
 }
 
 Export-ModuleMember -Function *-Fh*

@@ -610,3 +610,113 @@ Describe 'Watch task' {
         Should -Invoke -ModuleName FeatureHeist Unregister-ScheduledTask -Times 1
     }
 }
+
+Describe 'Install media' {
+    BeforeEach {
+        Reset-FhTest | Out-Null
+        $root = Join-Path $TestDrive ([guid]::NewGuid())
+        foreach ($f in 'boot\etfsboot.com', 'efi\microsoft\boot\efisys.bin', 'sources\install.wim') {
+            New-Item -ItemType Directory -Force (Split-Path (Join-Path $root $f)) | Out-Null
+            [IO.File]::WriteAllBytes((Join-Path $root $f), (New-Object byte[] 4096))
+        }
+    }
+
+    It 'restores the payload setting written by Extract' {
+        $s = Get-FhPayloadSetting
+        $s.Exists | Should -BeFalse
+        Set-FhPayloadRoot $TestDrive
+        Restore-FhPayloadSetting $s
+        Test-Path $TestReg | Should -BeFalse
+        Restore-FhPayloadSetting $s
+        New-Item $TestReg -Force | Out-Null
+        $s = Get-FhPayloadSetting
+        Set-FhPayloadRoot $TestDrive
+        Restore-FhPayloadSetting $s
+        Test-Path $TestReg | Should -BeTrue
+        (Get-FhPayloadSetting).Value | Should -BeNullOrEmpty
+        Set-ItemProperty $TestReg -Name PayloadPath -Value 'C:\old'
+        $s = Get-FhPayloadSetting
+        $s.Value | Should -Be 'C:\old'
+        Set-FhPayloadRoot $TestDrive
+        Restore-FhPayloadSetting $s
+        (Get-FhPayloadSetting).Value | Should -Be 'C:\old'
+    }
+    It 'reads the client image' {
+        Mock -ModuleName FeatureHeist Get-WindowsImage { [pscustomobject]@{ ImageName = 'Windows 11 Home'; Version = '10.0.26200.6584' } }
+        $c = Open-FhClientImage $root
+        $c.Build | Should -Be 26200
+        $c.Wim | Should -Be (Join-Path $root 'sources\install.wim')
+    }
+    It 'rejects Server media and media without an image' {
+        Mock -ModuleName FeatureHeist Get-WindowsImage { [pscustomobject]@{ ImageName = 'Windows Server 2025 Standard'; Version = '10.0.26100.1742' } }
+        { Open-FhClientImage $root } | Should -Throw '*Server media*'
+        { Open-FhClientImage (Join-Path $TestDrive 'none') } | Should -Throw '*No sources*'
+    }
+    It 'reads the kernel build of an image' {
+        $global:FhMount = Join-Path $TestDrive ([guid]::NewGuid())
+        New-Item -ItemType Directory -Force (Join-Path $FhMount 'Windows\System32') | Out-Null
+        $k = Join-Path $env:SystemRoot 'System32\ntoskrnl.exe'
+        Copy-Item $k (Join-Path $FhMount 'Windows\System32\ntoskrnl.exe')
+        Mock -ModuleName FeatureHeist Mount-FhImage { [pscustomobject]@{ Path = $global:FhMount; Copy = $null } }
+        Mock -ModuleName FeatureHeist Dismount-FhImage { }
+        Get-FhImageBaseBuild ([pscustomobject]@{ Wim = 'install.esd'; Index = 1 }) | Should -Be (Get-Item $k).VersionInfo.FileBuildPart
+        Should -Invoke -ModuleName FeatureHeist Mount-FhImage -Times 1 -ParameterFilter { $Writable }
+        Should -Invoke -ModuleName FeatureHeist Dismount-FhImage -Times 1
+    }
+    It 'writes MSI, start script, SetupComplete.cmd and answer file' {
+        $msi = Join-Path $TestDrive 'fh.msi'
+        Set-Content $msi 'msi'
+        $st = Join-Path $TestDrive ([guid]::NewGuid())
+        $media = Join-Path $st 'sources\$OEM$\$1\ProgramData\FeatureHeist\Media'
+        New-FhMediaFiles $st $msi 'Mpio', 'Lbfo' 'SAS' | Should -Be (Join-Path $media 'payload')
+        Test-Path -LiteralPath (Join-Path $media 'payload') | Should -BeTrue
+        Get-Content -LiteralPath (Join-Path $media 'FeatureHeist.msi') | Should -Be 'msi'
+        $cmd = Get-Content -LiteralPath (Join-Path $media 'Install.cmd') -Raw
+        $cmd | Should -Match 'ADDLOCAL=Core,MPIO,LBFO '
+        $cmd | Should -Match 'CLAIMISCSI="" CLAIMSAS="SAS"'
+        Get-Content -LiteralPath (Join-Path $st 'sources\$OEM$\$$\Setup\Scripts\SetupComplete.cmd') -Raw | Should -Match 'Media\\Install\.cmd'
+        $x = [xml](Get-Content -LiteralPath (Join-Path $st 'autounattend.xml') -Raw)
+        $x.unattend.settings.pass | Should -Be 'oobeSystem'
+        $st = Join-Path $TestDrive ([guid]::NewGuid())
+        $null = New-FhMediaFiles $st $msi 'Mpio' 'iSCSI'
+        Get-Content -LiteralPath (Join-Path $st 'sources\$OEM$\$1\ProgramData\FeatureHeist\Media\Install.cmd') -Raw | Should -Match 'ADDLOCAL=Core,MPIO .*CLAIMISCSI="iSCSI" CLAIMSAS=""'
+    }
+    It 'builds a UDF image with BIOS and UEFI boot entries and added files' {
+        $img = New-FhIsoImage $root 'FHTEST'
+        @($img.BootImageOptionsArray).Count | Should -Be 2
+        $add = Join-Path $TestDrive ([guid]::NewGuid())
+        New-Item -ItemType Directory -Force (Join-Path $add 'sources\new\sub') | Out-Null
+        Set-Content (Join-Path $add 'sources\new\sub\a.txt') 'a'
+        Set-Content (Join-Path $add 'sources\b.txt') 'b'
+        Set-Content (Join-Path $add 'c.txt') 'c'
+        Add-FhIsoTree $img $add
+        foreach ($p in '\sources\new\sub\a.txt', '\sources\b.txt', '\c.txt', '\sources\install.wim') { $img.Exists($p) | Should -Be 2 }
+        $out = Join-Path $TestDrive "$([guid]::NewGuid()).iso"
+        Save-FhIso $img $out
+        (Get-Item $out).Length | Should -BeGreaterThan 8192
+        Get-FhTestLog | Should -Match 'ISO written'
+    }
+    It 'mounts an ISO read-only' -Skip:(-not $IsAdmin) {
+        $out = Join-Path $TestDrive "$([guid]::NewGuid()).iso"
+        Save-FhIso (New-FhIsoImage $root 'FHTEST') $out
+        $m = Mount-FhIso $out
+        try {
+            $m.Label | Should -Be 'FHTEST'
+            Test-Path (Join-Path $m.Root 'sources\install.wim') | Should -BeTrue
+        } finally { Dismount-DiskImage -ImagePath $m.ImagePath | Out-Null }
+    }
+    It 'refuses to replace files of the media' {
+        $img = New-FhIsoImage $root 'FHTEST'
+        $add = Join-Path $TestDrive ([guid]::NewGuid())
+        New-Item -ItemType Directory -Force (Join-Path $add 'sources') | Out-Null
+        Set-Content (Join-Path $add 'sources\install.wim') 'x'
+        { Add-FhIsoTree $img $add } | Should -Throw '*already contains \sources\install.wim*'
+        $add = Join-Path $TestDrive ([guid]::NewGuid())
+        New-Item -ItemType Directory -Force (Join-Path $add 'boot\etfsboot.com') | Out-Null
+        { Add-FhIsoTree $img $add } | Should -Throw '*already contains \boot\etfsboot.com*'
+    }
+    It 'needs both boot images' {
+        Remove-Item (Join-Path $root 'efi') -Recurse
+        { New-FhIsoImage $root 'FHTEST' } | Should -Throw '*Boot image missing*'
+    }
+}
