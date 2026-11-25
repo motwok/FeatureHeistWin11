@@ -1,6 +1,4 @@
-# Feature Heist for Windows 11
-
-<img src="src/installer/art/logo.svg" alt="Feature Heist logo" width="128">
+# <img src="src/installer/art/logo.svg" alt="Feature Heist logo" width="128" align="right">Feature Heist for Windows 11<br clear="right">
 
 [![Build](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/motwok/FeatureHeistWin11/actions/workflows/build.yml)
 [![Release](https://img.shields.io/github/v/release/motwok/FeatureHeistWin11)](https://github.com/motwok/FeatureHeistWin11/releases/latest)
